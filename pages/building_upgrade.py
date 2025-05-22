@@ -136,7 +136,7 @@ st.markdown(
 with st.expander("🔍 See bonus breakdown"):
     st.markdown(f"- Base Bonus: **{base_construction_bonus:.2f}%**")
     st.markdown(f"- Zinman Speed Bonus: **{speed_bonus_percent_zinman}%**")
-    st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet if pet_activated else 0}%**")
+    st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet}%**")
     st.markdown(f"- President Skill: **{speed_bonus_percent_president}%**")
     st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
 st.markdown("---")
