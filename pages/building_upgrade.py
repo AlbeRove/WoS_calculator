@@ -97,7 +97,7 @@ with col2:
 #     )
 # else:
 #     pet_level = 0
-# speed_bonus_percent_zinman = zinman_level * 3
+speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
 
 pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
@@ -135,7 +135,7 @@ st.markdown(
 
 with st.expander("🔍 See bonus breakdown"):
     st.markdown(f"- Base Bonus: **{base_construction_bonus:.2f}%**")
-    st.markdown(f"- Zinman Cost Reduction : **{cost_bonus_percent_zinman}%**")
+    st.markdown(f"- Zinman Cost Reduction : **{speed_bonus_percent_zinman}%**")
     st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet}%**")
     st.markdown(f"- President Skill: **{speed_bonus_percent_president}%**")
     st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
