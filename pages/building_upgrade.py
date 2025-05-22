@@ -90,11 +90,11 @@ speed_bonus_percent_pet = pet_speed_bonuses[pet_level]
 
 president_skill = st.checkbox("President Skill Activated? (+10% speed bonus)", value=False)
 vice_president_skill = st.checkbox("Vice President Skill Activated? (+10% speed bonus)", value=False)
+double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
 
 speed_bonus_percent_president = 10 if president_skill else 0
 speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
-
-double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
+speed_bonus_double_time = 20 if double_time else 0
 
 # Calculate total speed bonus
 total_speed_bonus_percent = (
@@ -102,7 +102,8 @@ total_speed_bonus_percent = (
     speed_bonus_percent_zinman +
     speed_bonus_percent_pet +
     speed_bonus_percent_president +
-    speed_bonus_percent_vice_president
+    speed_bonus_percent_vice_president +
+    speed_bonus_double_time
 )
 
 # Simple tooltip text
