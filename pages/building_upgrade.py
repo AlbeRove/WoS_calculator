@@ -216,7 +216,7 @@ if st.button("Calculate Upgrades Cost"):
     ] + [total_time_str]
     result_df = pd.DataFrame({
         "Resource": [r.capitalize() for r in resources] + ["Time"],
-        "Total Cost": [total_resources[r] for r in resources] + [total_time_str]
+        "Total Cost": formatted_costs
     })
 
     # Display costs as numbers, time as string
