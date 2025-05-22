@@ -33,9 +33,7 @@ st.markdown("Set your bonuses first, then define building upgrade parameters.")
 
 st.header("🎖️ Bonuses & Skills")
 
-base_construction_bonus_str = st.text_input(
-    "Base Construction Speed Bonus (%)", value="0"
-)
+base_construction_bonus_str = st.text_input("Base Construction Speed Bonus (%)", value="0")
 
 try:
     base_construction_bonus = float(base_construction_bonus_str)
@@ -58,6 +56,7 @@ pet_activated = st.checkbox("Activate Pet Bonus?")
 pet_level = 0
 if pet_activated:
     pet_level = st.selectbox("Pet Skill Level", options=[1, 2, 3, 4, 5], index=0)
+
 pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
 pet_speed_bonus = pet_speed_bonuses[pet_level]
 
@@ -97,7 +96,7 @@ if not activated_buildings:
     st.info("Please select at least one building.")
     st.stop()
 
-# -------- Processing Selections --------
+# -------- Upgrade Inputs --------
 upgrade_selections = {}
 for bname in activated_buildings:
     st.subheader(f"⚙️ {bname}")
@@ -120,42 +119,34 @@ for bname in activated_buildings:
 
     upgrade_selections[bname] = (current_level, target_level, df)
 
-# -------- Aggregation --------
-expected_resources = ["meat", "wood", "coal", "iron", "fire crystals"]
-total_resources = pd.Series(0.0, index=expected_resources)
-total_base_time = 0.0
+# -------- Calculate Button --------
+if st.button("🚀 Calculate Upgrades"):
+    expected_resources = ["meat", "wood", "coal", "iron", "fire crystals"]
+    total_resources = pd.Series(0.0, index=expected_resources)
+    total_base_time = 0.0
 
-for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
-    upgrade_df = df[(df["level"] >= cur_lvl) & (df["level"] < tgt_lvl)]
-    if upgrade_df.empty:
-        continue
+    for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
+        upgrade_df = df[(df["level"] >= cur_lvl) & (df["level"] < tgt_lvl)]
+        if upgrade_df.empty:
+            continue
 
-    # Fill missing resource columns with zeros
-    for col in expected_resources:
-        if col not in upgrade_df.columns:
-            upgrade_df[col] = 0
+        # Ensure all expected columns exist
+        for col in expected_resources:
+            if col not in upgrade_df.columns:
+                upgrade_df[col] = 0
 
-    # Apply Zinman cost reduction
-    cost_df = upgrade_df[expected_resources] * zinman_cost_multiplier
-    total_resources += cost_df.sum()
-    total_base_time += upgrade_df["time"].sum()
+        cost_df = upgrade_df[expected_resources] * zinman_cost_multiplier
+        total_resources += cost_df.sum()
+        total_base_time += upgrade_df["time"].sum()
 
-adjusted_time = total_base_time * speed_multiplier
+    adjusted_time = total_base_time * speed_multiplier
 
-# -------- Output --------
-st.header("🧾 Total Upgrade Summary")
-
-summary_df = pd.DataFrame([{
-    "meat": int(total_resources["meat"]),
-    "wood": int(total_resources["wood"]),
-    "coal": int(total_resources["coal"]),
-    "iron": int(total_resources["iron"]),
-    "fire crystals": int(total_resources["fire crystals"]),
-    "time": format_seconds(adjusted_time)
-}])
-
-st.subheader("📦 Resources and Time")
-st.dataframe(summary_df[["meat", "wood", "coal", "iron", "fire crystals", "time"]], use_container_width=True)
-
-st.markdown("---")
-st.caption("Adjust bonuses and building targets above to see updated results.")
+    st.header("✅ Total Upgrade Summary")
+    st.markdown(f"""
+    **Meat**: `{int(total_resources['meat']):,}`  
+    **Wood**: `{int(total_resources['wood']):,}`  
+    **Coal**: `{int(total_resources['coal']):,}`  
+    **Iron**: `{int(total_resources['iron']):,}`  
+    **Fire Crystals**: `{int(total_resources['fire crystals']):,}`  
+    **Time**: `{format_seconds(adjusted_time)}`
+    """)
