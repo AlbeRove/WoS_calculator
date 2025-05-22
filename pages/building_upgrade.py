@@ -71,6 +71,7 @@ except ValueError:
 #     )
 # else:
 #     zinman_level = 0
+
 def zinman_level_selector():
     st.write("Zinman Skill Level:")
     selected_level = 0
