@@ -197,7 +197,7 @@ for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
     upgrade_df = df[(df["level"] >= cur_lvl) & (df["level"] < tgt_lvl)]
     if upgrade_df.empty:
         continue
-    resources = ["meat", "wood", "coal", "iron", "fire crystals"]
+    resources = ["meat", "wood", "coal", "iron", "firecrystals"]
     res_sum = upgrade_df[resources].sum()
     total_resources = total_resources.add(res_sum, fill_value=0)
     total_base_time += upgrade_df["time"].sum()
