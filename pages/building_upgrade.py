@@ -62,12 +62,22 @@ except ValueError:
     base_construction_bonus = 0.0
 
 zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
+# if zinman_active:
+#     zinman_level = st.selectbox(
+#         "Zinman Skill Level",
+#         options=[0, 1, 2, 3, 4, 5],
+#         index=0,
+#         format_func=lambda x: f"Level {x}"
+#     )
+# else:
+#     zinman_level = 0
 if zinman_active:
-    zinman_level = st.selectbox(
+    zinman_level = st.radio(
         "Zinman Skill Level",
-        options=[0, 1, 2, 3, 4, 5],
-        index=0,
-        format_func=lambda x: f"Level {x}"
+        options=[1, 2, 3, 4, 5],
+        format_func=lambda x: "⏹️" * x + "⬜" * (5 - x),
+        index=0,  # default to level 1 here (first option)
+        horizontal=True
     )
 else:
     zinman_level = 0
