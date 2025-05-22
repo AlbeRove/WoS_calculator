@@ -5,13 +5,107 @@ from datetime import timedelta
 
 st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
 
-st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-st.markdown("Set your bonuses first, then select buildings to upgrade.")
+# --- CSS to prevent button text wrapping ---
+st.markdown("""
+    <style>
+    div.stButton > button {
+        white-space: nowrap;
+        min-width: 130px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- Bonuses & Skills ---
 
-# (Same bonus code as before)
-# For brevity, I’ll skip repeating the bonus code here — assume you include it above exactly as before.
+st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
+st.markdown("Set your bonuses first, then select buildings to upgrade.")
+
+st.header("🎖️ Bonuses & Skills")
+
+base_construction_bonus_str = st.text_input(
+    "Base Construction Speed Bonus (%) - type a number, e.g. 5 or 12.5",
+    value="0"
+)
+
+try:
+    base_construction_bonus = float(base_construction_bonus_str)
+    if base_construction_bonus < 0:
+        st.warning("Base Construction Speed Bonus cannot be negative. Reset to 0.")
+        base_construction_bonus = 0.0
+except ValueError:
+    st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
+    base_construction_bonus = 0.0
+
+zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
+if zinman_active:
+    zinman_level = st.selectbox(
+        "Zinman Skill Level",
+        options=[0, 1, 2, 3, 4, 5],
+        index=0,
+        format_func=lambda x: f"Level {x}"
+    )
+else:
+    zinman_level = 0
+
+speed_bonus_percent_zinman = zinman_level * 3
+cost_bonus_percent_zinman = zinman_level * 3
+
+pet_activated = st.checkbox("Pet Activated?", value=False)
+if pet_activated:
+    pet_level = st.selectbox(
+        "Pet Skill Level",
+        options=[1, 2, 3, 4, 5],
+        index=0,
+        format_func=lambda x: f"Level {x}"
+    )
+else:
+    pet_level = 0
+pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
+speed_bonus_percent_pet = pet_speed_bonuses[pet_level]
+
+president_skill = st.checkbox("President Skill Activated? (+10% speed bonus)", value=False)
+vice_president_skill = st.checkbox("Vice President Skill Activated? (+10% speed bonus)", value=False)
+
+speed_bonus_percent_president = 10 if president_skill else 0
+speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
+
+double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
+
+# Calculate total speed bonus
+total_speed_bonus_percent = (
+    base_construction_bonus +
+    speed_bonus_percent_zinman +
+    speed_bonus_percent_pet +
+    speed_bonus_percent_president +
+    speed_bonus_percent_vice_president
+)
+
+# Tooltip breakdown
+tooltip_text = (
+    f"Base Bonus: {base_construction_bonus:.2f}%\\n"
+    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%\\n"
+    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\\n"
+    f"President Skill: {speed_bonus_percent_president}%\\n"
+    f"Vice President Skill: {speed_bonus_percent_vice_president}%\\n"
+    f"Total: {total_speed_bonus_percent:.2f}%"
+)
+
+st.markdown("---")
+st.markdown(
+    f"### Total Speed Bonus: "
+    f"<span title='{tooltip_text}' style='text-decoration: underline; cursor: help;'>"
+    f"{total_speed_bonus_percent:.2f}%"
+    f"</span>",
+    unsafe_allow_html=True
+)
+
+with st.expander("🔍 See bonus breakdown"):
+    st.markdown(f"- Base Bonus: **{base_construction_bonus:.2f}%**")
+    st.markdown(f"- Zinman Speed Bonus: **{speed_bonus_percent_zinman}%**")
+    st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet if pet_activated else 0}%**")
+    st.markdown(f"- President Skill: **{speed_bonus_percent_president}%**")
+    st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
+st.markdown("---")
 
 # --- Utility functions for multi-building part ---
 
@@ -55,16 +149,14 @@ building_names = [
 if "active_buildings" not in st.session_state:
     st.session_state.active_buildings = {bname: False for bname in building_names}
 
-# Render buttons for each building
-cols = st.columns(len(building_names))  # Put buttons side by side
-
-for i, bname in enumerate(building_names):
-    # Change button label based on active state with emoji
-    label = f"✅ {bname}" if st.session_state.active_buildings[bname] else bname
-
-    if cols[i].button(label):
-        # Toggle state on click
-        st.session_state.active_buildings[bname] = not st.session_state.active_buildings[bname]
+# Render buttons for each building in 2 rows for better spacing (optional)
+for i in range(0, len(building_names), 4):
+    cols = st.columns(min(4, len(building_names) - i))
+    for j, bname in enumerate(building_names[i:i+4]):
+        label = f"✅ {bname}" if st.session_state.active_buildings[bname] else bname
+        if cols[j].button(label, key=bname):
+            # Toggle state on click
+            st.session_state.active_buildings[bname] = not st.session_state.active_buildings[bname]
 
 # Collect active buildings
 activated_buildings = [b for b, active in st.session_state.active_buildings.items() if active]
@@ -97,8 +189,6 @@ for bname in activated_buildings:
         target_level = st.selectbox(f"{bname} Target Level", options=possible_targets, key=f"{bname}_target")
 
     upgrade_selections[bname] = (current_level, target_level, df)
-
-# Assuming total_speed_bonus_percent is calculated in your bonuses code above
 
 total_resources = pd.Series(dtype=float)
 total_base_time = 0.0
