@@ -3,12 +3,8 @@ import pandas as pd
 from datetime import timedelta
 import os
 
-# ---------------- Page Setup ----------------
-st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
-st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-st.markdown("Set your bonuses, choose buildings, and calculate upgrade costs.")
+# --- Helper functions ---
 
-# ---------------- Helper Functions ----------------
 def format_seconds(seconds: int) -> str:
     td = timedelta(seconds=int(seconds))
     days = td.days
@@ -20,67 +16,107 @@ def format_seconds(seconds: int) -> str:
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 def get_csv_filename(building_name: str) -> str:
-    return os.path.join("data", building_name.lower().replace(" ", "") + ".csv")
+    filename = building_name.lower().replace(" ", "") + ".csv"
+    return os.path.join("data", filename)
 
 def load_building_data(name):
     filename = get_csv_filename(name)
     try:
         return pd.read_csv(filename)
     except FileNotFoundError:
-        st.warning(f"Data file for **{name}** not found at `{filename}`.")
+        st.warning(f"Data file '{filename}' for {name} not found in the 'data' folder.")
         return None
 
-# ---------------- Session State ----------------
-if "active_buildings" not in st.session_state:
-    st.session_state.active_buildings = []
+# --- Main app ---
 
-# ---------------- Bonuses Section ----------------
+st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
+st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
+st.markdown("Set your bonuses first, then select buildings and define upgrade levels.")
+
+# --- Bonuses & Skills ---
+
 st.header("🎖️ Bonuses & Skills")
 
-base_construction_bonus_str = st.text_input("Base Construction Speed Bonus (%)", value="0")
+base_construction_bonus_str = st.text_input(
+    "Base Construction Speed Bonus (%) - type a number, e.g. 5 or 12.5",
+    value="0"
+)
+
 try:
     base_construction_bonus = float(base_construction_bonus_str)
     if base_construction_bonus < 0:
-        st.warning("Base bonus cannot be negative. Reset to 0.")
+        st.warning("Base Construction Speed Bonus cannot be negative. Reset to 0.")
         base_construction_bonus = 0.0
 except ValueError:
-    st.warning("Invalid input. Reset to 0.")
+    st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
     base_construction_bonus = 0.0
 
-zinman_active = st.checkbox("Activate Zinman Skill?")
-zinman_level = 0
-zinman_cost_multiplier = 1.0
-zinman_speed_bonus = 0
-
+zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
 if zinman_active:
-    zinman_level = st.selectbox("Zinman Skill Level", options=[0, 1, 2, 3, 4, 5], index=0)
-    zinman_speed_bonus = zinman_level * 3
-    zinman_cost_multiplier = [1.0, 0.97, 0.94, 0.91, 0.88, 0.85][zinman_level]
+    zinman_level = st.selectbox(
+        "Zinman Skill Level",
+        options=[0, 1, 2, 3, 4, 5],
+        index=0,
+        format_func=lambda x: f"Level {x}"
+    )
+else:
+    zinman_level = 0
 
-pet_active = st.checkbox("Activate Pet Bonus?")
-pet_level = 0
-pet_speed_bonus = 0
+speed_bonus_percent_zinman = zinman_level * 3
+cost_bonus_percent_zinman = {0: 1, 1: 0.97, 2: 0.94, 3: 0.91, 4: 0.88, 5: 0.85}[zinman_level]
 
-if pet_active:
-    pet_level = st.selectbox("Pet Skill Level", options=[1, 2, 3, 4, 5], index=0)
-    pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
-    pet_speed_bonus = pet_speed_bonuses[pet_level]
+pet_activated = st.checkbox("Pet Activated?", value=False)
+if pet_activated:
+    pet_level = st.selectbox(
+        "Pet Skill Level",
+        options=[1, 2, 3, 4, 5],
+        index=0,
+        format_func=lambda x: f"Level {x}"
+    )
+else:
+    pet_level = 0
+pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
+speed_bonus_percent_pet = pet_speed_bonuses[pet_level]
 
-president_skill = st.checkbox("President Skill Activated? (+10%)")
-vice_president_skill = st.checkbox("Vice President Skill Activated? (+10%)")
+president_skill = st.checkbox("President Skill Activated? (+10% speed bonus)", value=False)
+vice_president_skill = st.checkbox("Vice President Skill Activated? (+10% speed bonus)", value=False)
 
-speed_bonus_total = (
+speed_bonus_percent_president = 10 if president_skill else 0
+speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
+
+double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
+
+# Calculate total speed bonus
+total_speed_bonus_percent = (
     base_construction_bonus +
-    zinman_speed_bonus +
-    pet_speed_bonus +
-    (10 if president_skill else 0) +
-    (10 if vice_president_skill else 0)
+    speed_bonus_percent_zinman +
+    speed_bonus_percent_pet +
+    speed_bonus_percent_president +
+    speed_bonus_percent_vice_president
 )
 
-speed_multiplier = 1 / (1 + speed_bonus_total / 100)
+# Tooltip breakdown text
+tooltip_text = (
+    f"Base Bonus: {base_construction_bonus:.2f}%\\n"
+    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%\\n"
+    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\\n"
+    f"President Skill: {speed_bonus_percent_president}%\\n"
+    f"Vice President Skill: {speed_bonus_percent_vice_president}%\\n"
+    f"Total: {total_speed_bonus_percent:.2f}%"
+)
 
-# ---------------- Building Selection ----------------
-st.header("🏗️ Select Buildings to Upgrade")
+# Show total speed bonus with tooltip
+st.markdown("---")
+st.markdown(
+    f"### Total Speed Bonus: "
+    f"<span title='{tooltip_text}' style='text-decoration: underline; cursor: help;'>"
+    f"{total_speed_bonus_percent:.2f}%"
+    f"</span>",
+    unsafe_allow_html=True
+)
+st.markdown("---")
+
+# --- Buildings selection ---
 
 building_names = [
     "Furnace",
@@ -92,22 +128,30 @@ building_names = [
     "Infirmary"
 ]
 
+# Initialize session_state for active_buildings if not set
+if "active_buildings" not in st.session_state:
+    st.session_state.active_buildings = []
+
+st.header("🏗️ Select Buildings to Upgrade")
+
 cols = st.columns(3)
+active_buildings = []
 for idx, b in enumerate(building_names):
-    if cols[idx % 3].button(b, key=f"btn_{b}"):
-        if b not in st.session_state.active_buildings:
-            st.session_state.active_buildings.append(b)
-        else:
-            st.session_state.active_buildings.remove(b)
+    toggled = cols[idx % 3].toggle(b, key=f"toggle_{b}")
+    if toggled:
+        active_buildings.append(b)
+
+st.session_state.active_buildings = active_buildings
 
 if not st.session_state.active_buildings:
-    st.info("Click a building button above to activate it.")
+    st.info("Please activate at least one building to upgrade.")
     st.stop()
 
-# ---------------- Upgrade Inputs ----------------
+# --- Upgrade levels selection ---
+
 upgrade_selections = {}
 for bname in st.session_state.active_buildings:
-    st.subheader(f"⚙️ {bname}")
+    st.subheader(bname)
     df = load_building_data(bname)
     if df is None:
         continue
@@ -117,20 +161,26 @@ for bname in st.session_state.active_buildings:
 
     col1, col2 = st.columns(2)
     with col1:
-        current_level = st.selectbox(f"{bname} - Current Level", options=levels, index=0, key=f"{bname}_curr")
+        current_level = st.selectbox(f"{bname} Current Level", options=levels, index=0, key=f"{bname}_curr")
     with col2:
-        target_options = [lvl for lvl in levels if lvl > current_level]
-        if not target_options:
-            st.warning("No levels above current.")
+        possible_targets = [lvl for lvl in levels if lvl > current_level]
+        if not possible_targets:
+            st.warning(f"No higher target levels available for {bname}")
             continue
-        target_level = st.selectbox(f"{bname} - Target Level", options=target_options, key=f"{bname}_target")
+        target_level = st.selectbox(f"{bname} Target Level", options=possible_targets, key=f"{bname}_target")
 
     upgrade_selections[bname] = (current_level, target_level, df)
 
-# ---------------- Calculate Button ----------------
-if st.button("🚀 Calculate Upgrades"):
-    expected_resources = ["meat", "wood", "coal", "iron", "fire crystals"]
-    total_resources = pd.Series(0.0, index=expected_resources)
+if not upgrade_selections:
+    st.info("Please select valid upgrade levels.")
+    st.stop()
+
+# --- Calculate button ---
+
+if st.button("Calculate Upgrades"):
+
+    resources = ["meat", "wood", "coal", "iron", "fire crystals"]
+    total_resources = pd.Series(dtype=float)
     total_base_time = 0.0
 
     for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
@@ -138,24 +188,32 @@ if st.button("🚀 Calculate Upgrades"):
         if upgrade_df.empty:
             continue
 
-        for col in expected_resources:
-            if col not in upgrade_df.columns:
-                upgrade_df[col] = 0
+        # Apply Zinman cost reduction
+        zinman_cost_multiplier = cost_bonus_percent_zinman
+        cost_df = upgrade_df[resources] * zinman_cost_multiplier
 
-        cost_df = upgrade_df[expected_resources] * zinman_cost_multiplier
-        total_resources += cost_df.sum()
+        total_resources = total_resources.add(cost_df.sum(), fill_value=0)
         total_base_time += upgrade_df["time"].sum()
 
-    adjusted_time = total_base_time * speed_multiplier
+    # Apply speed bonus to time, including double time option
+    reduction = 1 / (1 + total_speed_bonus_percent / 100)
+    final_time = total_base_time * reduction
+    if double_time:
+        final_time *= 2
 
-    st.header("✅ Total Upgrade Summary")
-    result_df = pd.DataFrame([{
-        "Meat": int(total_resources["meat"]),
-        "Wood": int(total_resources["wood"]),
-        "Coal": int(total_resources["coal"]),
-        "Iron": int(total_resources["iron"]),
-        "Fire Crystals": int(total_resources["fire crystals"]),
-        "Time": format_seconds(adjusted_time)
-    }])
+    # Format output nicely
+    total_resources = total_resources.fillna(0).astype(int)
+    total_time_str = format_seconds(final_time)
 
-    st.table(result_df)
+    # Display results in a nice table
+    st.header("🧾 Total Upgrade Summary")
+
+    result_df = pd.DataFrame({
+        "Resource": [r.capitalize() for r in resources] + ["Time"],
+        "Total Cost": [total_resources[r] for r in resources] + [total_time_str]
+    })
+
+    # Display costs as numbers, time as string
+    # Show in the order: meat, wood, coal, iron, fire crystals, time
+    st.table(result_df.set_index("Resource"))
+
