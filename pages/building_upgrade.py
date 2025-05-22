@@ -61,7 +61,7 @@ except ValueError:
     st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
     base_construction_bonus = 0.0
 
-zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
+# zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
 # if zinman_active:
 #     zinman_level = st.selectbox(
 #         "Zinman Skill Level",
@@ -71,14 +71,25 @@ zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
 #     )
 # else:
 #     zinman_level = 0
+def zinman_level_selector():
+    st.write("Zinman Skill Level:")
+    selected_level = 0
+    cols = st.columns(5)
+    for i, col in enumerate(cols, start=1):
+        checked = st.session_state.get(f"zinman_level_{i}", False)
+        new_val = col.checkbox(f"{i}", value=checked, key=f"zinman_level_chk_{i}")
+        if new_val and selected_level == 0:
+            selected_level = i
+        elif new_val and selected_level != i:
+            # uncheck all others except this one
+            for j in range(1, 6):
+                if j != i:
+                    st.session_state[f"zinman_level_chk_{j}"] = False
+            selected_level = i
+    return selected_level
+
 if zinman_active:
-    zinman_level = st.radio(
-        "Zinman Skill Level",
-        options=[1, 2, 3, 4, 5],
-        format_func=lambda x: "⏹️" * x + "⬜" * (5 - x),
-        index=0,  # default to level 1 here (first option)
-        horizontal=True
-    )
+    zinman_level = zinman_level_selector()
 else:
     zinman_level = 0
 
