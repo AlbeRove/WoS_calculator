@@ -2,15 +2,15 @@ import streamlit as st
 
 # Page config (title and icon)
 st.set_page_config(
-    page_title="Game Calculator Hub",
+    page_title="WoS Upgrade and Troops Calculator",
     page_icon="🎮",
     layout="centered"
 )
 
 # Header
-st.title("🎮 Game Calculator Hub")
-st.subheader("Welcome, adventurer!")
-st.write("Choose a calculator below to optimize your game strategy:")
+st.title("")
+st.subheader("Powered by Pollo🐥")
+st.write("Choose a calculator below 😀")
 
 # Navigation buttons using page links (Streamlit will auto-detect .py files in the /pages folder)
 col1, col2 = st.columns(2)
