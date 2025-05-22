@@ -75,11 +75,10 @@ zinman_level = st.radio(
     "Zinman Skill Level",
     options=[0, 1, 2, 3, 4, 5],
     index=0,
-    format_func=lambda x: f"{x}" if x > 0 else "0 (None)",
+    format_func=lambda x: str(x),
     horizontal=True
 )
 
-st.write(f"Selected Zinman level: {zinman_level}")
 # def zinman_level_selector():
 #     st.write("Zinman Skill Level:")
 #     cols = st.columns(5)
