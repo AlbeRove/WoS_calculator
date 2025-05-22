@@ -16,7 +16,7 @@ st.write("Choose a calculator below to optimize your game strategy:")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.page_link("pages/building_upgrade.py", label="📈 Upgrade Cost Calculator", icon="📈")
+    st.page_link("pages/building_upgrade.py", label="Upgrade Cost Calculator", icon="📈")
     st.page_link("pages/building_upgrade.py", label="Coming soon...")
 
 with col2:
