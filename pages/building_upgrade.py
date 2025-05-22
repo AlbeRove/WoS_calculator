@@ -6,7 +6,7 @@ from datetime import timedelta
 st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
 
 st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-st.markdown("Set your bonuses first, then define building upgrade parameters.")
+st.markdown("Set your bonuses first, then select buildings to upgrade.")
 
 # --- Bonuses & Skills ---
 
@@ -98,41 +98,6 @@ with st.expander("🔍 See bonus breakdown"):
     st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
 st.markdown("---")
 
-# --- Base Upgrade Inputs ---
-
-st.header("🏗️ Base Upgrade Parameters")
-
-base_cost = st.number_input("Base Cost (Level 1)", value=100)
-cost_multiplier = st.number_input("Cost Multiplier (per level)", value=1.15, step=0.01)
-time_per_level = st.number_input("Time per Level (minutes)", value=5)
-start_level = st.number_input("Start Level", min_value=1, value=1)
-end_level = st.number_input("End Level", min_value=start_level, value=10)
-
-levels = list(range(start_level, end_level + 1))
-
-raw_costs = [base_cost * (cost_multiplier ** (lvl - 1)) for lvl in levels]
-raw_times = [time_per_level for _ in levels]
-
-adjusted_costs = [cost * (1 - cost_bonus_percent_zinman / 100) for cost in raw_costs]
-
-if double_time:
-    adjusted_times = [time * 2 for time in raw_times]
-else:
-    adjusted_times = raw_times.copy()
-
-adjusted_times = [time * (1 - total_speed_bonus_percent / 100) for time in adjusted_times]
-
-total_cost = int(sum(adjusted_costs))
-total_time = int(sum(adjusted_times))
-
-df_base = pd.DataFrame({
-    "Level": levels,
-    "Base Cost": [int(c) for c in raw_costs],
-    "Adjusted Cost": [int(c) for c in adjusted_costs],
-    "Base Time (min)": raw_times,
-    "Adjusted Time (min)": [round(t, 2) for t in adjusted_times]
-})
-
 # --- Utility functions for multi-building part ---
 
 def format_seconds(seconds: int) -> str:
@@ -171,15 +136,19 @@ building_names = [
     "Infirmary"
 ]
 
-selected_buildings = st.multiselect("Select Buildings to Upgrade", building_names)
+# Use checkboxes as toggle buttons for each building
+activated_buildings = []
+for bname in building_names:
+    if st.checkbox(f"Activate {bname}", key=f"activate_{bname}"):
+        activated_buildings.append(bname)
 
-if not selected_buildings:
-    st.info("Please select at least one building to upgrade.")
+if not activated_buildings:
+    st.info("Please activate at least one building to upgrade.")
     st.stop()
 
 upgrade_selections = {}
 
-for bname in selected_buildings:
+for bname in activated_buildings:
     st.subheader(bname)
     df = load_building_data(bname)
     if df is None:
@@ -230,16 +199,3 @@ else:
 st.subheader("Total Upgrade Time")
 st.write(f"- Base time: {format_seconds(total_base_time)}")
 st.write(f"- Adjusted time: {format_seconds(final_time)} (with {total_speed_bonus_percent:.2f}% speed bonus)")
-
-# --- Output for base upgrade parameters ---
-
-st.markdown("---")
-st.subheader("📊 Base Upgrade Summary")
-
-st.write(f"**Total cost** from level {start_level} to {end_level}: **{total_cost}** coins (after Zinman cost bonus)")
-st.write(f"**Total time**: **{total_time}** minutes (after bonuses and time modifiers)")
-
-st.dataframe(df_base, use_container_width=True)
-
-st.markdown("---")
-st.caption("Adjust bonuses and upgrade parameters above.")
