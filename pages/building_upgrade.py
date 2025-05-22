@@ -133,7 +133,7 @@ with st.expander("🔍 See bonus breakdown"):
     st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
 st.markdown("---")
 
-# --- Building Selection and Upgrade Parameters ---
+# --- Buildings selection ---
 
 building_names = [
     "Furnace",
@@ -145,71 +145,69 @@ building_names = [
     "Infirmary"
 ]
 
-# Initialize session state for active buildings and upgrade selections
+# Initialize session_state for active_buildings if not set
 if "active_buildings" not in st.session_state:
-    st.session_state.active_buildings = set()
+    st.session_state.active_buildings = []
 
-if "upgrade_selections" not in st.session_state:
-    st.session_state.upgrade_selections = {}
+st.header("🏗️ Select Buildings to Upgrade")
 
-st.header("🏗️ Select Buildings and Upgrade Levels")
-
-def toggle_building(building):
-    if building in st.session_state.active_buildings:
-        st.session_state.active_buildings.remove(building)
-        if building in st.session_state.upgrade_selections:
-            del st.session_state.upgrade_selections[building]
-    else:
-        st.session_state.active_buildings.add(building)
-
-# Buttons for buildings in two columns (for nicer layout)
 cols = st.columns(3)
-for idx, bname in enumerate(building_names):
-    with cols[idx % 3]:
-        if st.button(bname, key=f"btn_{bname}"):
-            toggle_building(bname)
+active_buildings = []
+for idx, b in enumerate(building_names):
+    toggled = cols[idx % 3].toggle(b, key=f"toggle_{b}")
+    if toggled:
+        active_buildings.append(b)
 
-# Show upgrade selectors for active buildings
-for bname in building_names:
-    if bname in st.session_state.active_buildings:
-        st.subheader(bname)
-        df = load_building_data(bname)
-        if df is None:
-            continue
-        levels = df["level"].tolist()
-        min_level, max_level = min(levels), max(levels)
+st.session_state.active_buildings = active_buildings
 
-        col1, col2 = st.columns(2)
-        with col1:
-            current_level = st.selectbox(f"{bname} Current Level", options=levels, index=0, key=f"{bname}_curr")
-        with col2:
-            possible_targets = [lvl for lvl in levels if lvl > current_level]
-            if not possible_targets:
-                st.warning(f"No higher target levels available for {bname}")
-                continue
-            target_level = st.selectbox(f"{bname} Target Level", options=possible_targets, key=f"{bname}_target")
-
-        st.session_state.upgrade_selections[bname] = (current_level, target_level, df)
-
-if not st.session_state.upgrade_selections:
-    st.info("Select at least one building and set levels to enable calculation.")
+if not st.session_state.active_buildings:
+    st.info("Please activate at least one building to upgrade.")
     st.stop()
 
-# --- Calculation & Output ---
+# --- Upgrade levels selection ---
+
+upgrade_selections = {}
+for bname in st.session_state.active_buildings:
+    st.subheader(bname)
+    df = load_building_data(bname)
+    if df is None:
+        continue
+
+    levels = df["level"].tolist()
+    min_level, max_level = min(levels), max(levels)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        current_level = st.selectbox(f"{bname} Current Level", options=levels, index=0, key=f"{bname}_curr")
+    with col2:
+        possible_targets = [lvl for lvl in levels if lvl > current_level]
+        if not possible_targets:
+            st.warning(f"No higher target levels available for {bname}")
+            continue
+        target_level = st.selectbox(f"{bname} Target Level", options=possible_targets, key=f"{bname}_target")
+
+    upgrade_selections[bname] = (current_level, target_level, df)
+
+if not upgrade_selections:
+    st.info("Please select valid upgrade levels.")
+    st.stop()
+
+# --- Calculate button ---
 
 if st.button("Calculate Upgrades"):
 
-    resources = ["meat", "wood", "coal", "iron", "firecrystals"]
+    resources = ["meat", "wood", "coal", "iron", "fire crystals"]
     total_resources = pd.Series(dtype=float)
     total_base_time = 0.0
 
-    for bname, (cur_lvl, tgt_lvl, df) in st.session_state.upgrade_selections.items():
+    for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
         upgrade_df = df[(df["level"] >= cur_lvl) & (df["level"] < tgt_lvl)]
         if upgrade_df.empty:
             continue
 
-        # Apply Zinman cost reduction multiplier
-        cost_df = upgrade_df[resources] * cost_bonus_percent_zinman
+        # Apply Zinman cost reduction
+        zinman_cost_multiplier = cost_bonus_percent_zinman
+        cost_df = upgrade_df[resources] * zinman_cost_multiplier
 
         total_resources = total_resources.add(cost_df.sum(), fill_value=0)
         total_base_time += upgrade_df["time"].sum()
@@ -224,15 +222,14 @@ if st.button("Calculate Upgrades"):
     total_resources = total_resources.fillna(0).astype(int)
     total_time_str = format_seconds(final_time)
 
-    # Format numbers with commas
-    formatted_costs = [f"{total_resources[r]:,}" for r in resources]
-
     # Display results in a nice table
     st.header("🧾 Total Upgrade Summary")
 
     result_df = pd.DataFrame({
         "Resource": [r.capitalize() for r in resources] + ["Time"],
-        "Total Cost": formatted_costs + [total_time_str]
+        "Total Cost": [total_resources[r] for r in resources] + [total_time_str]
     })
 
+    # Display costs as numbers, time as string
+    # Show in the order: meat, wood, coal, iron, fire crystals, time
     st.table(result_df.set_index("Resource"))
