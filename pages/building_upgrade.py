@@ -188,7 +188,7 @@ if not upgrade_selections:
 
 if st.button("Calculate Upgrades"):
 
-    resources = ["meat", "wood", "coal", "iron", "fire crystals"]
+    resources = ["meat", "wood", "coal", "iron", "firecrystals"]
     total_resources = pd.Series(dtype=float)
     total_base_time = 0.0
 
