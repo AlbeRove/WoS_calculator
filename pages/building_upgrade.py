@@ -225,3 +225,4 @@ if st.button("Calculate Upgrades"):
     # Display costs as numbers, time as string
     # Show in the order: meat, wood, coal, iron, fire crystals, time
     st.table(result_df.set_index("Resource"))
+
