@@ -5,7 +5,7 @@ st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
 
 st.title("📈 Building Upgrade Calculator with Zinman & Pet Skills")
 
-st.markdown("Calculate the total cost and time to upgrade a building with Zinman and Pet skill bonuses.")
+st.markdown("Calculate the total cost and time to upgrade a building with Zinman, Pet, President, and Vice President skill bonuses.")
 
 # --- Input Parameters ---
 
@@ -20,10 +20,10 @@ end_level = st.number_input("End Level", min_value=start_level, value=10)
 st.markdown("---")
 
 st.header("🎖️ Zinman Skill Level")
-zinman_level = st.select_slider(
+zinman_level = st.selectbox(
     "Select Zinman skill level",
     options=[0, 1, 2, 3, 4, 5],
-    value=0,
+    index=0,
     format_func=lambda x: f"Level {x}"
 )
 
@@ -39,10 +39,10 @@ st.header("🐾 Pet Skill")
 pet_activated = st.checkbox("Pet Activated?", value=False)
 
 if pet_activated:
-    pet_level = st.select_slider(
+    pet_level = st.selectbox(
         "Select Pet skill level",
         options=[1, 2, 3, 4, 5],
-        value=1,
+        index=0,
         format_func=lambda x: f"Level {x}"
     )
 else:
@@ -56,6 +56,31 @@ if pet_activated:
     st.markdown(f"**Pet Construction Speed Bonus:** {speed_bonus_percent_pet}%")
 else:
     st.markdown("Pet Construction Speed Bonus: N/A")
+
+st.markdown("---")
+
+st.header("🏛️ Other Skills & Bonuses")
+
+base_construction_bonus = st.number_input(
+    "Base Construction Speed Bonus (%)",
+    min_value=0.0,
+    value=0.0,
+    step=0.1,
+    format="%.1f"
+)
+
+president_skill = st.checkbox("President Skill Activated? (+10% speed bonus)", value=False)
+vice_president_skill = st.checkbox("Vice President Skill Activated? (+10% speed bonus)", value=False)
+
+# Calculate other skill speed bonuses
+speed_bonus_percent_president = 10 if president_skill else 0
+speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
+
+total_other_speed_bonus = base_construction_bonus + speed_bonus_percent_president + speed_bonus_percent_vice_president
+
+st.markdown(f"**Base Construction Bonus:** {base_construction_bonus}%")
+st.markdown(f"**President Skill Bonus:** {speed_bonus_percent_president}%")
+st.markdown(f"**Vice President Skill Bonus:** {speed_bonus_percent_vice_president}%")
 
 st.markdown("---")
 
@@ -73,8 +98,8 @@ raw_times = [time_per_level for _ in levels]
 # Apply Zinman cost reduction
 adjusted_costs = [cost * (1 - cost_bonus_percent_zinman / 100) for cost in raw_costs]
 
-# Calculate combined speed bonus from Zinman and Pet (additive)
-total_speed_bonus_percent = speed_bonus_percent_zinman + speed_bonus_percent_pet
+# Calculate combined speed bonus from Zinman, Pet, President, Vice President, and base bonus (additive)
+total_speed_bonus_percent = speed_bonus_percent_zinman + speed_bonus_percent_pet + total_other_speed_bonus
 
 # Apply double time modifier before speed reduction
 if double_time:
