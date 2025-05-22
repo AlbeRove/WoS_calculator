@@ -70,11 +70,11 @@ total_speed_bonus_percent = (
 
 # Tooltip breakdown
 tooltip_text = (
-    f"Base Bonus: {base_construction_bonus:.2f}%\\n"
-    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%\\n"
-    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\\n"
-    f"President Skill: {speed_bonus_percent_president}%\\n"
-    f"Vice President Skill: {speed_bonus_percent_vice_president}%\\n"
+    f"Base Bonus: {base_construction_bonus:.2f}%<br>"
+    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%<br>"
+    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%<br>"
+    f"President Skill: {speed_bonus_percent_president}%<br>"
+    f"Vice President Skill: {speed_bonus_percent_vice_president}%<br>"
     f"Total: {total_speed_bonus_percent:.2f}%"
 )
 
