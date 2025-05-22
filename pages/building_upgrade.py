@@ -11,13 +11,20 @@ st.markdown("Set your bonuses first, then define building upgrade parameters.")
 
 st.header("🎖️ Bonuses & Skills")
 
-base_construction_bonus = st.number_input(
-    "Base Construction Speed Bonus (%)",
-    min_value=0.0,
-    value=0.0,
-    step=0.1,
-    format="%.1f"
+# Text input for Base Construction Speed Bonus, with validation
+base_construction_bonus_str = st.text_input(
+    "Base Construction Speed Bonus (%) - type a number, e.g. 5 or 12.5",
+    value="0"
 )
+
+try:
+    base_construction_bonus = float(base_construction_bonus_str)
+    if base_construction_bonus < 0:
+        st.warning("Base Construction Speed Bonus cannot be negative. Reset to 0.")
+        base_construction_bonus = 0.0
+except ValueError:
+    st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
+    base_construction_bonus = 0.0
 
 zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
 if zinman_active:
@@ -54,16 +61,27 @@ speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
 
 double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
 
+# Calculate total speed bonus
+total_speed_bonus_percent = (
+    base_construction_bonus +
+    speed_bonus_percent_zinman +
+    speed_bonus_percent_pet +
+    speed_bonus_percent_president +
+    speed_bonus_percent_vice_president
+)
+
 # Show bonuses summary
 st.markdown("---")
 st.markdown("### Current Bonuses Summary:")
-st.markdown(f"- Base Construction Bonus: **{base_construction_bonus}%**")
+st.markdown(f"- Base Construction Bonus: **{base_construction_bonus:.2f}%**")
 st.markdown(f"- Zinman Speed Bonus: **{speed_bonus_percent_zinman}%**")
 st.markdown(f"- Zinman Cost Reduction: **{cost_bonus_percent_zinman}%**")
 st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet}%**" if pet_activated else "- Pet Speed Bonus: **N/A**")
 st.markdown(f"- President Skill Bonus: **{speed_bonus_percent_president}%**")
 st.markdown(f"- Vice President Skill Bonus: **{speed_bonus_percent_vice_president}%**")
 st.markdown(f"- Double Construction Time: **{'Yes' if double_time else 'No'}**")
+
+st.markdown(f"### Total Speed Bonus: **{total_speed_bonus_percent:.2f}%**")
 
 st.markdown("---")
 
@@ -85,14 +103,6 @@ raw_costs = [base_cost * (cost_multiplier ** (lvl - 1)) for lvl in levels]
 raw_times = [time_per_level for _ in levels]
 
 adjusted_costs = [cost * (1 - cost_bonus_percent_zinman / 100) for cost in raw_costs]
-
-total_speed_bonus_percent = (
-    base_construction_bonus +
-    speed_bonus_percent_zinman +
-    speed_bonus_percent_pet +
-    speed_bonus_percent_president +
-    speed_bonus_percent_vice_president
-)
 
 if double_time:
     adjusted_times = [time * 2 for time in raw_times]
