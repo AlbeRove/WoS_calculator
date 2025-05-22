@@ -16,12 +16,12 @@ st.write("Choose a calculator below to optimize your game strategy:")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.page_link("pages/test.py", label="📈 Upgrade Cost Calculator", icon="📈")
-    st.page_link("pages/test.py", label="⏳ Time Estimator", icon="⏳")
+    st.page_link("pages/building_upgrade.py", label="📈 Upgrade Cost Calculator", icon="📈")
+    st.page_link("pages/building_upgrade.py", label="⏳ Time Estimator", icon="⏳")
 
 with col2:
-    st.page_link("pages/3_Resource_Planner.py", label="🧱 Resource Planner", icon="🧱")
-    st.page_link("pages/4_Custom_Formula.py", label="🧮 Custom Formula Tool", icon="🧮")
+    st.page_link("pages/building_upgrade.py", label="🧱 Resource Planner", icon="🧱")
+    st.page_link("pages/building_upgrade.py", label="🧮 Custom Formula Tool", icon="🧮")
 
 st.markdown("---")
 st.caption("Made with ❤️ using Streamlit")
