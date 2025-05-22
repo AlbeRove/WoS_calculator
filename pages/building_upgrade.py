@@ -11,7 +11,6 @@ st.markdown("Set your bonuses first, then define building upgrade parameters.")
 
 st.header("🎖️ Bonuses & Skills")
 
-# Text input for Base Construction Speed Bonus, with validation
 base_construction_bonus_str = st.text_input(
     "Base Construction Speed Bonus (%) - type a number, e.g. 5 or 12.5",
     value="0"
@@ -61,7 +60,6 @@ speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
 
 double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
 
-# Calculate total speed bonus
 total_speed_bonus_percent = (
     base_construction_bonus +
     speed_bonus_percent_zinman +
@@ -70,19 +68,26 @@ total_speed_bonus_percent = (
     speed_bonus_percent_vice_president
 )
 
-# Show bonuses summary
+# Compose tooltip text with breakdown
+tooltip_text = (
+    f"Breakdown of Speed Bonuses:\n"
+    f"- Base Construction Bonus: {base_construction_bonus:.2f}%\n"
+    f"- Zinman Speed Bonus: {speed_bonus_percent_zinman}%\n"
+    f"- Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\n"
+    f"- President Skill Bonus: {speed_bonus_percent_president}%\n"
+    f"- Vice President Skill Bonus: {speed_bonus_percent_vice_president}%\n"
+    f"- Total: {total_speed_bonus_percent:.2f}%"
+)
+
 st.markdown("---")
-st.markdown("### Current Bonuses Summary:")
-st.markdown(f"- Base Construction Bonus: **{base_construction_bonus:.2f}%**")
-st.markdown(f"- Zinman Speed Bonus: **{speed_bonus_percent_zinman}%**")
-st.markdown(f"- Zinman Cost Reduction: **{cost_bonus_percent_zinman}%**")
-st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet}%**" if pet_activated else "- Pet Speed Bonus: **N/A**")
-st.markdown(f"- President Skill Bonus: **{speed_bonus_percent_president}%**")
-st.markdown(f"- Vice President Skill Bonus: **{speed_bonus_percent_vice_president}%**")
-st.markdown(f"- Double Construction Time: **{'Yes' if double_time else 'No'}**")
-
-st.markdown(f"### Total Speed Bonus: **{total_speed_bonus_percent:.2f}%**")
-
+# Show only total speed bonus with hover tooltip
+st.markdown(
+    f"### Total Speed Bonus: "
+    f"<span title='{tooltip_text}' style='text-decoration: underline; cursor: help;'>"
+    f"**{total_speed_bonus_percent:.2f}%**"
+    f"</span>",
+    unsafe_allow_html=True
+)
 st.markdown("---")
 
 # --- Base Upgrade Inputs ---
