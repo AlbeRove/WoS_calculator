@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 # Header
-st.title("")
+st.title("WoS Upgrade and Troops Calculator")
 st.subheader("Powered by Pollo🐥")
 st.write("Choose a calculator below 😀")
 
