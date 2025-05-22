@@ -4,7 +4,6 @@ import pandas as pd
 st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
 
 st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-
 st.markdown("Set your bonuses first, then define building upgrade parameters.")
 
 # --- Bonuses & Skills ---
@@ -60,6 +59,7 @@ speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
 
 double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
 
+# Calculate total speed bonus
 total_speed_bonus_percent = (
     base_construction_bonus +
     speed_bonus_percent_zinman +
@@ -68,23 +68,22 @@ total_speed_bonus_percent = (
     speed_bonus_percent_vice_president
 )
 
-# Compose tooltip text with breakdown
+# Tooltip breakdown
 tooltip_text = (
-    f"Breakdown of Speed Bonuses:\n"
-    f"- Base Construction Bonus: {base_construction_bonus:.2f}%\n"
-    f"- Zinman Speed Bonus: {speed_bonus_percent_zinman}%\n"
-    f"- Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\n"
-    f"- President Skill Bonus: {speed_bonus_percent_president}%\n"
-    f"- Vice President Skill Bonus: {speed_bonus_percent_vice_president}%\n"
-    f"- Total: {total_speed_bonus_percent:.2f}%"
+    f"Base Bonus: {base_construction_bonus:.2f}%\\n"
+    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%\\n"
+    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\\n"
+    f"President Skill: {speed_bonus_percent_president}%\\n"
+    f"Vice President Skill: {speed_bonus_percent_vice_president}%\\n"
+    f"Total: {total_speed_bonus_percent:.2f}%"
 )
 
+# Display Total Bonus with hover tooltip
 st.markdown("---")
-# Show only total speed bonus with hover tooltip
 st.markdown(
     f"### Total Speed Bonus: "
     f"<span title='{tooltip_text}' style='text-decoration: underline; cursor: help;'>"
-    f"**{total_speed_bonus_percent:.2f}%**"
+    f"{total_speed_bonus_percent:.2f}%"
     f"</span>",
     unsafe_allow_html=True
 )
