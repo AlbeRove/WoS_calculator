@@ -97,7 +97,7 @@ with col2:
 #     )
 # else:
 #     pet_level = 0
-speed_bonus_percent_zinman = zinman_level * 3
+# speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
 
 pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
@@ -114,7 +114,7 @@ speed_bonus_double_time = 20 if double_time else 0
 # Calculate total speed bonus
 total_speed_bonus_percent = (
     base_construction_bonus +
-    speed_bonus_percent_zinman +
+    # speed_bonus_percent_zinman +
     speed_bonus_percent_pet +
     speed_bonus_percent_president +
     speed_bonus_percent_vice_president +
