@@ -181,7 +181,7 @@ if not upgrade_selections:
 # --- Add Calculate button ---
 if st.button("Calculate Upgrades Cost"):
 
-    resources = ["meat", "wood", "coal", "iron"]
+    resources = ["meat", "wood", "coal", "iron", "firecrystals"]
     total_resources = pd.Series(dtype=float)
     total_base_time = 0.0
 
@@ -190,9 +190,10 @@ if st.button("Calculate Upgrades Cost"):
         if upgrade_df.empty:
             continue
 
-        # Apply Zinman cost reduction
-        zinman_cost_multiplier = cost_bonus_percent_zinman
-        cost_df = upgrade_df[resources] * zinman_cost_multiplier
+        # Apply Zinman cost reduction only to all resources except firecrystals
+        cost_df = upgrade_df[resources].copy()
+        # Apply multiplier except on 'firecrystals'
+        cost_df.loc[:, cost_df.columns != "firecrystals"] *= cost_bonus_percent_zinman
 
         total_resources = total_resources.add(cost_df.sum(), fill_value=0)
         total_base_time += upgrade_df["time"].sum()
