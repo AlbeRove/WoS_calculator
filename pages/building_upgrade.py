@@ -29,26 +29,15 @@ def load_building_data(name):
         st.warning(f"Data file '{filename}' for {name} not found in the 'data' folder.")
         return None
 
-# --- Zinman cost multipliers ---
-
-zinman_cost_reduction = {
-    0: 1.00,
-    1: 0.97,
-    2: 0.94,
-    3: 0.91,
-    4: 0.88,
-    5: 0.85,
-}
-
 # --- Bonuses & Skills Section ---
 
-st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-st.markdown("Set your bonuses first, then select buildings and upgrade parameters.")
+st.title("📈 Building Upgrade Calculator")
+st.markdown("Set your bonuses first, then select buildings you want to upgrade.")
 
-st.header("🎖️ Bonuses & Skills")
+st.header("Bonus & Skills")
 
 base_construction_bonus_str = st.text_input(
-    "Base Construction Speed Bonus (%) - type a number, e.g. 5 or 12.5",
+    "Base Construction Speed Bonus",
     value="0"
 )
 
@@ -60,14 +49,6 @@ try:
 except ValueError:
     st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
     base_construction_bonus = 0.0
-
-# zinman_level = st.radio(
-#     "Zinman Skill Level",
-#     options=[0, 1, 2, 3, 4, 5],
-#     index=0,
-#     format_func=lambda x: str(x),
-#     horizontal=True
-# )
 
 col1, col2 = st.columns(2)
 
@@ -87,25 +68,25 @@ with col2:
         horizontal=True
     )
 
-# pet_activated = st.checkbox("Pet Activated?", value=False)
-# if pet_activated:
-#     pet_level = st.selectbox(
-#         "Pet Skill Level",
-#         options=[1, 2, 3, 4, 5],
-#         index=0,
-#         format_func=lambda x: f"Level {x}"
-#     )
-# else:
-#     pet_level = 0
+# --- Zinman cost multipliers ---
+zinman_cost_reduction = {
+    0: 1.00,
+    1: 0.97,
+    2: 0.94,
+    3: 0.91,
+    4: 0.88,
+    5: 0.85,
+}
+
 speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
 
 pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
 speed_bonus_percent_pet = pet_speed_bonuses[pet_level]
 
-president_skill = st.checkbox("President Skill Activated? (+10% speed bonus)", value=False)
-vice_president_skill = st.checkbox("Vice President Skill Activated? (+10% speed bonus)", value=False)
-double_time = st.checkbox("Double Construction Time (20% bonus)", value=False)
+president_skill = st.checkbox("President Skill (+10%)", value=False)
+vice_president_skill = st.checkbox("Vice President Appointment (+10%)", value=False)
+double_time = st.checkbox("Double Construction Time (20%)", value=False)
 
 speed_bonus_percent_president = 10 if president_skill else 0
 speed_bonus_percent_vice_president = 10 if vice_president_skill else 0
@@ -114,7 +95,6 @@ speed_bonus_double_time = 20 if double_time else 0
 # Calculate total speed bonus
 total_speed_bonus_percent = (
     base_construction_bonus +
-    # speed_bonus_percent_zinman +
     speed_bonus_percent_pet +
     speed_bonus_percent_president +
     speed_bonus_percent_vice_president +
@@ -123,7 +103,6 @@ total_speed_bonus_percent = (
 
 # Simple tooltip text
 tooltip_text = "Click to see bonus breakdown below."
-
 st.markdown("---")
 st.markdown(
     f"### Total Speed Bonus: "
@@ -133,7 +112,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-with st.expander("🔍 See bonus breakdown"):
+with st.expander("Active bonus details"):
     st.markdown(f"- Base Bonus: **{base_construction_bonus:.2f}%**")
     st.markdown(f"- Zinman Cost Reduction : **{speed_bonus_percent_zinman}%**")
     st.markdown(f"- Pet Speed Bonus: **{speed_bonus_percent_pet}%**")
@@ -141,8 +120,8 @@ with st.expander("🔍 See bonus breakdown"):
     st.markdown(f"- Vice President Skill: **{speed_bonus_percent_vice_president}%**")
 st.markdown("---")
 
-# --- Buildings selection ---
 
+# --- Buildings selection ---
 building_names = [
     "Furnace",
     "Embassy",
@@ -157,8 +136,7 @@ building_names = [
 if "active_buildings" not in st.session_state:
     st.session_state.active_buildings = []
 
-st.header("🏗️ Select Buildings to Upgrade")
-
+st.header("Buildings to Upgrade")
 cols = st.columns(3)
 active_buildings = []
 for idx, b in enumerate(building_names):
@@ -173,7 +151,6 @@ if not st.session_state.active_buildings:
     st.stop()
 
 # --- Upgrade levels selection ---
-
 upgrade_selections = {}
 for bname in st.session_state.active_buildings:
     st.subheader(bname)
@@ -200,11 +177,11 @@ if not upgrade_selections:
     st.info("Please select valid upgrade levels.")
     st.stop()
 
-# --- Calculate button ---
 
-if st.button("Calculate Upgrades"):
+# --- Add Calculate button ---
+if st.button("Calculate Upgrades Cost"):
 
-    resources = ["meat", "wood", "coal", "iron", "firecrystals"]
+    resources = ["meat", "wood", "coal", "iron"]
     total_resources = pd.Series(dtype=float)
     total_base_time = 0.0
 
