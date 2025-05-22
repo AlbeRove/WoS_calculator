@@ -61,57 +61,45 @@ except ValueError:
     st.warning("Invalid input for Base Construction Speed Bonus. Reset to 0.")
     base_construction_bonus = 0.0
 
-# zinman_active = st.checkbox("Activate Zinman Skill?", value=False)
-# if zinman_active:
-#     zinman_level = st.selectbox(
-#         "Zinman Skill Level",
-#         options=[0, 1, 2, 3, 4, 5],
+# zinman_level = st.radio(
+#     "Zinman Skill Level",
+#     options=[0, 1, 2, 3, 4, 5],
+#     index=0,
+#     format_func=lambda x: str(x),
+#     horizontal=True
+# )
+
+col1, col2 = st.columns(2)
+
+with col1:
+    zinman_level = st.radio(
+        "Zinman Skill Level",
+        options=[0, 1, 2, 3, 4, 5],
+        index=0,
+        horizontal=True
+    )
+
+with col2:
+    pet_level = st.radio(
+        "Pet Skill Level",
+        options=[0, 1, 2, 3, 4, 5],
+        index=0,
+        horizontal=True
+    )
+
+# pet_activated = st.checkbox("Pet Activated?", value=False)
+# if pet_activated:
+#     pet_level = st.selectbox(
+#         "Pet Skill Level",
+#         options=[1, 2, 3, 4, 5],
 #         index=0,
 #         format_func=lambda x: f"Level {x}"
 #     )
 # else:
-#     zinman_level = 0
-zinman_level = st.radio(
-    "Zinman Skill Level",
-    options=[0, 1, 2, 3, 4, 5],
-    index=0,
-    format_func=lambda x: str(x),
-    horizontal=True
-)
-
-# def zinman_level_selector():
-#     st.write("Zinman Skill Level:")
-#     cols = st.columns(5)
-#     selected_level = 0
-#     # Track which checkbox is selected
-#     for i, col in enumerate(cols, start=1):
-#         checked = st.session_state.get(f"zinman_level_chk_{i}", False)
-#         new_val = col.checkbox(str(i), value=checked, key=f"zinman_level_chk_{i}")
-#         if new_val:
-#             selected_level = i
-#             # Uncheck all others
-#             for j in range(1, 6):
-#                 if j != i:
-#                     st.session_state[f"zinman_level_chk_{j}"] = False
-#             break
-#     return selected_level
-
-# zinman_level = zinman_level_selector()
-# st.write(f"Selected Zinman level: {zinman_level}")
-
+#     pet_level = 0
 speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
 
-pet_activated = st.checkbox("Pet Activated?", value=False)
-if pet_activated:
-    pet_level = st.selectbox(
-        "Pet Skill Level",
-        options=[1, 2, 3, 4, 5],
-        index=0,
-        format_func=lambda x: f"Level {x}"
-    )
-else:
-    pet_level = 0
 pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
 speed_bonus_percent_pet = pet_speed_bonuses[pet_level]
 
