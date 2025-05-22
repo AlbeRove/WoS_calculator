@@ -210,7 +210,10 @@ if st.button("Calculate Upgrades Cost"):
 
     # Display results in a nice table
     st.header("🧾 Total Upgrade Summary")
-
+    # Format numbers with commas except the 'Time' row which is already a string
+    formatted_costs = [
+        f"{total_resources[r]:,}" for r in resources
+    ] + [total_time_str]
     result_df = pd.DataFrame({
         "Resource": [r.capitalize() for r in resources] + ["Time"],
         "Total Cost": [total_resources[r] for r in resources] + [total_time_str]
