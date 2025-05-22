@@ -74,25 +74,23 @@ except ValueError:
 
 def zinman_level_selector():
     st.write("Zinman Skill Level:")
-    selected_level = 0
     cols = st.columns(5)
+    selected_level = 0
+    # Track which checkbox is selected
     for i, col in enumerate(cols, start=1):
-        checked = st.session_state.get(f"zinman_level_{i}", False)
-        new_val = col.checkbox(f"{i}", value=checked, key=f"zinman_level_chk_{i}")
-        if new_val and selected_level == 0:
+        checked = st.session_state.get(f"zinman_level_chk_{i}", False)
+        new_val = col.checkbox(str(i), value=checked, key=f"zinman_level_chk_{i}")
+        if new_val:
             selected_level = i
-        elif new_val and selected_level != i:
-            # uncheck all others except this one
+            # Uncheck all others
             for j in range(1, 6):
                 if j != i:
                     st.session_state[f"zinman_level_chk_{j}"] = False
-            selected_level = i
+            break
     return selected_level
 
-if zinman_active:
-    zinman_level = zinman_level_selector()
-else:
-    zinman_level = 0
+zinman_level = zinman_level_selector()
+st.write(f"Selected Zinman level: {zinman_level}")
 
 speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
