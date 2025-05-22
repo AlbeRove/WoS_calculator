@@ -105,16 +105,6 @@ total_speed_bonus_percent = (
     speed_bonus_percent_vice_president
 )
 
-# Tooltip breakdown
-tooltip_text = (
-    f"Base Bonus: {base_construction_bonus:.2f}%\n"
-    f"Zinman Speed Bonus: {speed_bonus_percent_zinman}%\n"
-    f"Pet Speed Bonus: {speed_bonus_percent_pet if pet_activated else 'N/A'}%\n"
-    f"President Skill: {speed_bonus_percent_president}%\n"
-    f"Vice President Skill: {speed_bonus_percent_vice_president}%\n"
-    f"Total: {total_speed_bonus_percent:.2f}%"
-)
-
 # Display Total Bonus with hover tooltip
 st.markdown("---")
 st.markdown(
