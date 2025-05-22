@@ -3,9 +3,12 @@ import pandas as pd
 from datetime import timedelta
 import os
 
+# ---------------- Page Setup ----------------
 st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
+st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
+st.markdown("Set your bonuses, choose buildings, and calculate upgrade costs.")
 
-# -------- Helper Functions --------
+# ---------------- Helper Functions ----------------
 def format_seconds(seconds: int) -> str:
     td = timedelta(seconds=int(seconds))
     days = td.days
@@ -24,17 +27,17 @@ def load_building_data(name):
     try:
         return pd.read_csv(filename)
     except FileNotFoundError:
-        st.warning(f"Data file '{filename}' for {name} not found.")
+        st.warning(f"Data file for **{name}** not found at `{filename}`.")
         return None
 
-# -------- UI: Bonuses --------
-st.title("📈 Building Upgrade Calculator with Bonuses & Skills")
-st.markdown("Set your bonuses first, then define building upgrade parameters.")
+# ---------------- Session State ----------------
+if "active_buildings" not in st.session_state:
+    st.session_state.active_buildings = []
 
+# ---------------- Bonuses Section ----------------
 st.header("🎖️ Bonuses & Skills")
 
 base_construction_bonus_str = st.text_input("Base Construction Speed Bonus (%)", value="0")
-
 try:
     base_construction_bonus = float(base_construction_bonus_str)
     if base_construction_bonus < 0:
@@ -46,19 +49,22 @@ except ValueError:
 
 zinman_active = st.checkbox("Activate Zinman Skill?")
 zinman_level = 0
+zinman_cost_multiplier = 1.0
+zinman_speed_bonus = 0
+
 if zinman_active:
     zinman_level = st.selectbox("Zinman Skill Level", options=[0, 1, 2, 3, 4, 5], index=0)
+    zinman_speed_bonus = zinman_level * 3
+    zinman_cost_multiplier = [1.0, 0.97, 0.94, 0.91, 0.88, 0.85][zinman_level]
 
-zinman_speed_bonus = zinman_level * 3
-zinman_cost_multiplier = [1.0, 0.97, 0.94, 0.91, 0.88, 0.85][zinman_level]
-
-pet_activated = st.checkbox("Activate Pet Bonus?")
+pet_active = st.checkbox("Activate Pet Bonus?")
 pet_level = 0
-if pet_activated:
-    pet_level = st.selectbox("Pet Skill Level", options=[1, 2, 3, 4, 5], index=0)
+pet_speed_bonus = 0
 
-pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
-pet_speed_bonus = pet_speed_bonuses[pet_level]
+if pet_active:
+    pet_level = st.selectbox("Pet Skill Level", options=[1, 2, 3, 4, 5], index=0)
+    pet_speed_bonuses = [0, 5, 7, 9, 12, 15]
+    pet_speed_bonus = pet_speed_bonuses[pet_level]
 
 president_skill = st.checkbox("President Skill Activated? (+10%)")
 vice_president_skill = st.checkbox("Vice President Skill Activated? (+10%)")
@@ -71,9 +77,9 @@ speed_bonus_total = (
     (10 if vice_president_skill else 0)
 )
 
-speed_multiplier = 1 / (1 + (speed_bonus_total / 100))
+speed_multiplier = 1 / (1 + speed_bonus_total / 100)
 
-# -------- UI: Building Selection --------
+# ---------------- Building Selection ----------------
 st.header("🏗️ Select Buildings to Upgrade")
 
 building_names = [
@@ -86,19 +92,21 @@ building_names = [
     "Infirmary"
 ]
 
-activated_buildings = []
 cols = st.columns(3)
 for idx, b in enumerate(building_names):
-    if cols[idx % 3].button(b):
-        activated_buildings.append(b)
+    if cols[idx % 3].button(b, key=f"btn_{b}"):
+        if b not in st.session_state.active_buildings:
+            st.session_state.active_buildings.append(b)
+        else:
+            st.session_state.active_buildings.remove(b)
 
-if not activated_buildings:
-    st.info("Please select at least one building.")
+if not st.session_state.active_buildings:
+    st.info("Click a building button above to activate it.")
     st.stop()
 
-# -------- Upgrade Inputs --------
+# ---------------- Upgrade Inputs ----------------
 upgrade_selections = {}
-for bname in activated_buildings:
+for bname in st.session_state.active_buildings:
     st.subheader(f"⚙️ {bname}")
     df = load_building_data(bname)
     if df is None:
@@ -119,7 +127,7 @@ for bname in activated_buildings:
 
     upgrade_selections[bname] = (current_level, target_level, df)
 
-# -------- Calculate Button --------
+# ---------------- Calculate Button ----------------
 if st.button("🚀 Calculate Upgrades"):
     expected_resources = ["meat", "wood", "coal", "iron", "fire crystals"]
     total_resources = pd.Series(0.0, index=expected_resources)
@@ -130,7 +138,6 @@ if st.button("🚀 Calculate Upgrades"):
         if upgrade_df.empty:
             continue
 
-        # Ensure all expected columns exist
         for col in expected_resources:
             if col not in upgrade_df.columns:
                 upgrade_df[col] = 0
@@ -142,11 +149,13 @@ if st.button("🚀 Calculate Upgrades"):
     adjusted_time = total_base_time * speed_multiplier
 
     st.header("✅ Total Upgrade Summary")
-    st.markdown(f"""
-    **Meat**: `{int(total_resources['meat']):,}`  
-    **Wood**: `{int(total_resources['wood']):,}`  
-    **Coal**: `{int(total_resources['coal']):,}`  
-    **Iron**: `{int(total_resources['iron']):,}`  
-    **Fire Crystals**: `{int(total_resources['fire crystals']):,}`  
-    **Time**: `{format_seconds(adjusted_time)}`
-    """)
+    result_df = pd.DataFrame([{
+        "Meat": int(total_resources["meat"]),
+        "Wood": int(total_resources["wood"]),
+        "Coal": int(total_resources["coal"]),
+        "Iron": int(total_resources["iron"]),
+        "Fire Crystals": int(total_resources["fire crystals"]),
+        "Time": format_seconds(adjusted_time)
+    }])
+
+    st.table(result_df)
