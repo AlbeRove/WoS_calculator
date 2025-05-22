@@ -105,7 +105,9 @@ total_speed_bonus_percent = (
     speed_bonus_percent_vice_president
 )
 
-# Display Total Bonus with hover tooltip
+# Simple tooltip text
+tooltip_text = "Click to see bonus breakdown below."
+
 st.markdown("---")
 st.markdown(
     f"### Total Speed Bonus: "
