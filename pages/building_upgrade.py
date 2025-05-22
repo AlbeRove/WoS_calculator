@@ -209,7 +209,7 @@ if st.button("Calculate Upgrades"):
     total_base_time = 0.0
 
     for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
-        upgrade_df = df[(df["level"] >= cur_lvl) & (df["level"] <= tgt_lvl)]
+        upgrade_df = df[(df["level"] > cur_lvl) & (df["level"] <= tgt_lvl)]
         if upgrade_df.empty:
             continue
 
