@@ -17,11 +17,11 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.page_link("pages/building_upgrade.py", label="📈 Upgrade Cost Calculator", icon="📈")
-    st.page_link("pages/building_upgrade.py", label="⏳ Time Estimator", icon="⏳")
+    st.page_link("pages/building_upgrade.py", label="Coming soon...")
 
 with col2:
-    st.page_link("pages/building_upgrade.py", label="🧱 Resource Planner", icon="🧱")
-    st.page_link("pages/building_upgrade.py", label="🧮 Custom Formula Tool", icon="🧮")
+    st.page_link("pages/building_upgrade.py", label="Coming soon...")
+    st.page_link("pages/building_upgrade.py", label="Coming soon...")
 
 st.markdown("---")
 st.caption("Made with ❤️ using Streamlit")
