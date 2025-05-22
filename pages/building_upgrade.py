@@ -71,26 +71,34 @@ except ValueError:
 #     )
 # else:
 #     zinman_level = 0
+zinman_level = st.radio(
+    "Zinman Skill Level",
+    options=[0, 1, 2, 3, 4, 5],
+    index=0,
+    format_func=lambda x: f"{x}" if x > 0 else "0 (None)",
+    horizontal=True
+)
 
-def zinman_level_selector():
-    st.write("Zinman Skill Level:")
-    cols = st.columns(5)
-    selected_level = 0
-    # Track which checkbox is selected
-    for i, col in enumerate(cols, start=1):
-        checked = st.session_state.get(f"zinman_level_chk_{i}", False)
-        new_val = col.checkbox(str(i), value=checked, key=f"zinman_level_chk_{i}")
-        if new_val:
-            selected_level = i
-            # Uncheck all others
-            for j in range(1, 6):
-                if j != i:
-                    st.session_state[f"zinman_level_chk_{j}"] = False
-            break
-    return selected_level
-
-zinman_level = zinman_level_selector()
 st.write(f"Selected Zinman level: {zinman_level}")
+# def zinman_level_selector():
+#     st.write("Zinman Skill Level:")
+#     cols = st.columns(5)
+#     selected_level = 0
+#     # Track which checkbox is selected
+#     for i, col in enumerate(cols, start=1):
+#         checked = st.session_state.get(f"zinman_level_chk_{i}", False)
+#         new_val = col.checkbox(str(i), value=checked, key=f"zinman_level_chk_{i}")
+#         if new_val:
+#             selected_level = i
+#             # Uncheck all others
+#             for j in range(1, 6):
+#                 if j != i:
+#                     st.session_state[f"zinman_level_chk_{j}"] = False
+#             break
+#     return selected_level
+
+# zinman_level = zinman_level_selector()
+# st.write(f"Selected Zinman level: {zinman_level}")
 
 speed_bonus_percent_zinman = zinman_level * 3
 cost_bonus_percent_zinman = zinman_cost_reduction[zinman_level]
