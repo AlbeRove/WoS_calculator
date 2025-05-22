@@ -3,7 +3,6 @@ import pandas as pd
 from datetime import timedelta
 import os
 
-# Page config
 st.set_page_config(page_title="Upgrade Cost Calculator", page_icon="📈")
 
 # -------- Helper Functions --------
@@ -73,7 +72,6 @@ speed_bonus_total = (
     (10 if vice_president_skill else 0)
 )
 
-# Speed multiplier (e.g. 1.2 => 20% faster)
 speed_multiplier = 1 / (1 + (speed_bonus_total / 100))
 
 # -------- UI: Building Selection --------
@@ -123,8 +121,8 @@ for bname in activated_buildings:
     upgrade_selections[bname] = (current_level, target_level, df)
 
 # -------- Aggregation --------
-resources = ["meat", "wood", "coal", "iron", "fire crystals"]
-total_resources = pd.Series(dtype=float)
+expected_resources = ["meat", "wood", "coal", "iron", "fire crystals"]
+total_resources = pd.Series(0.0, index=expected_resources)
 total_base_time = 0.0
 
 for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
@@ -132,12 +130,15 @@ for bname, (cur_lvl, tgt_lvl, df) in upgrade_selections.items():
     if upgrade_df.empty:
         continue
 
-    # Apply Zinman cost reduction
-    cost_df = upgrade_df[resources] * zinman_cost_multiplier
-    time_sum = upgrade_df["time"].sum()
+    # Fill missing resource columns with zeros
+    for col in expected_resources:
+        if col not in upgrade_df.columns:
+            upgrade_df[col] = 0
 
-    total_resources = total_resources.add(cost_df.sum(), fill_value=0)
-    total_base_time += time_sum
+    # Apply Zinman cost reduction
+    cost_df = upgrade_df[expected_resources] * zinman_cost_multiplier
+    total_resources += cost_df.sum()
+    total_base_time += upgrade_df["time"].sum()
 
 adjusted_time = total_base_time * speed_multiplier
 
@@ -145,11 +146,11 @@ adjusted_time = total_base_time * speed_multiplier
 st.header("🧾 Total Upgrade Summary")
 
 summary_df = pd.DataFrame([{
-    "meat": int(total_resources.get("meat", 0)),
-    "wood": int(total_resources.get("wood", 0)),
-    "coal": int(total_resources.get("coal", 0)),
-    "iron": int(total_resources.get("iron", 0)),
-    "fire crystals": int(total_resources.get("fire crystals", 0)),
+    "meat": int(total_resources["meat"]),
+    "wood": int(total_resources["wood"]),
+    "coal": int(total_resources["coal"]),
+    "iron": int(total_resources["iron"]),
+    "fire crystals": int(total_resources["fire crystals"]),
     "time": format_seconds(adjusted_time)
 }])
 
