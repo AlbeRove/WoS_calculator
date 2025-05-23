@@ -5,7 +5,7 @@ import os
 
 st.set_page_config(page_title="Troops Training & Promotion", page_icon="🪖")
 
-st.title("📈 Building Upgrade Calculator")
+st.title("Troops Training & Promotion")
 st.markdown("Select if you want to train or upgrade troops, the fill the required fields and select how many troops you want to train/upgrade in total")
 
 # --- First define what to do: train or upgrade ---
@@ -33,10 +33,14 @@ if st.session_state.action in ["train", "upgrade"]:
         training_speed_input = st.text_input("Training Speed", value="10")
     with param_col2:
         training_capacity_input = st.text_input("Training Capacity", value="100")
+    capacity_bonus = st.checkbox("3x Capacity city bonus", value=False)
     # Validate inputs
     try:
         training_speed = float(training_speed_input)
         training_capacity = int(training_capacity_input)
+        if capacity_bonus: 
+            training_capacity = training_capacity * 3 
+        else: continue
         st.success(f"""
         Speed: {training_speed}  
         Capacity: {training_capacity}
