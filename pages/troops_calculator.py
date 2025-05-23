@@ -9,17 +9,23 @@ st.title("📈 Building Upgrade Calculator")
 st.markdown("Select if you want to train or upgrade troops, the fill the required fields and select how many troops you want to train/upgrade in total")
 
 # --- First define what to do: train or upgrade ---
-action = st.radio("Select Action", ["Train Troops", "Upgrade Troops"])
+# Create two columns for buttons
+col1, col2 = st.columns(2)
 
-# Show parameters based on selected action
-if action == "Train Troops":
+# Use session state to track which button was clicked
+if "action" not in st.session_state:
+    st.session_state.action = None
+
+# Define button actions
+with col1:
+    if st.button("Train Troops"):
+        st.session_state.action = "train"
+with col2:
+    if st.button("Upgrade Troops"):
+        st.session_state.action = "upgrade"
+
+# Show inputs if any action was selected
+if st.session_state.action in ["train", "upgrade"]:
+    st.subheader(f"{st.session_state.action.capitalize()} Parameters")
     training_speed = st.slider("Training Speed", min_value=1, max_value=100, value=50)
     training_capacity = st.number_input("Training Capacity", min_value=1, value=10)
-    if st.button("Start Training"):
-        st.success(f"Training started with speed {training_speed} and capacity {training_capacity}")
-
-elif action == "Upgrade Troops":
-    upgrade_level = st.selectbox("Upgrade Level", ["Level 1", "Level 2", "Level 3"])
-    upgrade_cost = st.number_input("Upgrade Cost", min_value=0, value=100)
-    if st.button("Start Upgrade"):
-        st.success(f"Upgrade to {upgrade_level} started with cost {upgrade_cost}")
