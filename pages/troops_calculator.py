@@ -8,6 +8,17 @@ st.set_page_config(page_title="Troops Training & Promotion", page_icon="🪖")
 st.title("Troops Training & Promotion")
 st.markdown("Select if you want to train or upgrade troops, the fill the required fields and select how many troops you want to train/upgrade in total")
 
+# --- Helper functions ---
+def format_seconds(seconds: float) -> str:
+    td = timedelta(seconds=int(seconds))
+    days = td.days
+    hours, remainder = divmod(td.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if days > 0:
+        return f"{days}d {hours:02d}:{minutes:02d}:{seconds:02d}"
+    else:
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 # --- First define what to do: train or upgrade ---
 # Create two columns for buttons
 col1, col2 = st.columns(2)
@@ -105,4 +116,59 @@ for troop in ["infantry", "lancer", "marksman"]:
         troop_data[troop] = pd.read_csv(file_path)
     else:
         st.warning(f"File {file_path} not found!")
+
+import pandas as pd
+
+# Assuming troop_params dict exists and troop_data dict is loaded
+
+if st.button("Calculate Total Resources"):
+    if not troop_params:
+        st.warning("Select at least one troop and specify parameters.")
+    else:
+        # Initialize total resource counters
+        total_resources = {
+            "Meat": 0,
+            "Wood": 0,
+            "Coal": 0,
+            "Iron": 0
+        }
+
+        # Map your troop names to filenames / keys in troop_data (make lowercase)
+        troop_key_map = {
+            "Infantry": "infantry",
+            "Lancers": "lancer",
+            "Marksmen": "marksman"
+        }
+
+        # Calculate total resources
+        for troop, params in troop_params.items():
+            troop_df = troop_data[troop_key_map[troop]]
+            level = params["level"]
+            number = params["number"]
+
+            # Get the row for the selected troop level (assuming 'Troop Tier' column)
+            row = troop_df[troop_df["Troop Tier"] == level]
+            if row.empty:
+                st.error(f"Level {level} data not found for {troop}")
+                continue
+
+            # Extract resource costs for the troop level
+            meat_cost = int(row["Meat"].values[0])
+            wood_cost = int(row["Wood"].values[0])
+            coal_cost = int(row["Coal"].values[0])
+            iron_cost = int(row["Iron"].values[0])
+
+            # Multiply by number of troops and add to total
+            total_resources["Meat"] += meat_cost * number
+            total_resources["Wood"] += wood_cost * number
+            total_resources["Coal"] += coal_cost * number
+            total_resources["Iron"] += iron_cost * number
+
+        # Display the total resource costs
+        st.subheader("Total Resource Cost")
+        total_df = pd.DataFrame(
+            total_resources.items(), columns=["Resource", "Total Amount"]
+        )
+        st.table(total_df)
+
 
