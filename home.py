@@ -16,8 +16,8 @@ st.write("Choose a calculator below 😀")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.page_link("pages/building_upgrade.py", label="Upgrade Cost Calculator", icon="📈")
-    st.page_link("pages/building_upgrade.py", label="Coming soon...")
+    st.page_link("pages/building_upgrade.py", label="Buildinf Upgrade Calculator", icon="📈")
+    st.page_link("pages/troops_calculator.py", label="Troops Train/Upgrade Calculator", icon="🪖")
 
 with col2:
     st.page_link("pages/building_upgrade.py", label="Coming soon...")
