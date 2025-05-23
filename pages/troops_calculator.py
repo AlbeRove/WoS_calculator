@@ -108,29 +108,33 @@ for troop in troops:
         st.subheader(f"{troops[troop]} {troop} Parameters")
 
         col1, col2, col3 = st.columns(3)
-        if st.session_state.action == "train":
+        mode = st.session_state.action  # "train" or "upgrade"
+
+        if mode == "train":
             with col1:
                 level = st.selectbox(
-                    f"{troop} Level", options=list(range(1, 12)), key=f"{troop}_level"
+                    f"{troop} Level", options=list(range(1, 12)), key=f"{troop}_{mode}_level"
                 )
-        elif st.session_state.action == "upgrade":
+        elif mode == "upgrade":
             with col1:
                 start_level = st.selectbox(
-                    f"{troop} Start Level", options=list(range(1, 11)), key=f"{troop}_start"
+                    f"{troop} Start Level", options=list(range(1, 11)), key=f"{troop}_{mode}_start"
                 )
             with col2:
+                # end_level options depend on start_level, must be strictly greater
+                end_level_options = list(range(start_level + 1, 12)) if 'start_level' in locals() else list(range(2, 12))
                 end_level = st.selectbox(
-                    f"{troop} End Level", options=list(range(2, 12)), key=f"{troop}_end"
+                    f"{troop} End Level", options=end_level_options, key=f"{troop}_{mode}_end"
                 )
 
         with col3:
             number = st.number_input(
-                f"Number of {troop}", min_value=0, step=1, key=f"{troop}_number"
+                f"Number of {troop}", min_value=0, step=1, key=f"{troop}_{mode}_number"
             )
 
-        if st.session_state.action == "train":
+        if mode == "train":
             troop_params[troop] = {"level": level, "number": number}
-        elif st.session_state.action == "upgrade":
+        elif mode == "upgrade":
             if start_level >= end_level:
                 st.warning(f"End level must be greater than start level for {troop}")
             else:
