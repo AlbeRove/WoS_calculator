@@ -5,10 +5,11 @@ import os
 
 st.set_page_config(page_title="Troops Training & Promotion", page_icon="🪖")
 
-# --- Bonuses & Skills Section ---
-
 st.title("📈 Building Upgrade Calculator")
 st.markdown("Select if you want to train or upgrade troops, the fill the required fields and select how many troops you want to train/upgrade in total")
+
+# --- First define what to do: train or upgrade ---
+action = st.radio("Select Action", ["Train Troops", "Upgrade Troops"])
 
 # Show parameters based on selected action
 if action == "Train Troops":
