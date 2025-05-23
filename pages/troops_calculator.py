@@ -159,26 +159,31 @@ if st.button("Calculate"):
 
         for troop, params in troop_params.items():
             troop_df = troop_data[troop_key_map[troop]]
+if st.button("Calculate"):
+    if not troop_params:
+        st.warning("Select at least one troop and specify parameters.")
+    else:
+        total_resources = {"Meat": 0, "Wood": 0, "Coal": 0, "Iron": 0}
+        total_base_time_sec = 0  # Total base training time in seconds
+        troop_key_map = {"Infantry": "infantry", "Lancers": "lancer", "Marksmen": "marksman"}
+
+        for troop, params in troop_params.items():
+            troop_df = troop_data[troop_key_map[troop]]
+
+            def parse_int(x):
+                if isinstance(x, str):
+                    return int(x.replace(",", ""))
+                return int(x)
 
             if st.session_state.action == "train":
-                levels = [params["level"]]
-            else:
-                levels = list(range(params["start_level"] + 1, params["end_level"] + 1))
+                level = params["level"]
+                number = params["number"]
 
-            number = params["number"]
-
-            for level in levels:
                 row = troop_df[troop_df["Level"] == level]
                 if row.empty:
                     st.error(f"Level {level} not found for {troop}")
                     continue
                 row = row.iloc[0]
-
-                # Convert resource costs to integers (handling commas)
-                def parse_int(x):
-                    if isinstance(x, str):
-                        return int(x.replace(",", ""))
-                    return int(x)
 
                 meat_cost = parse_int(row["Meat"])
                 wood_cost = parse_int(row["Wood"])
@@ -190,16 +195,42 @@ if st.button("Calculate"):
                 total_resources["Coal"] += coal_cost * number
                 total_resources["Iron"] += iron_cost * number
 
-                # Base training time per troop (in seconds)
                 base_time_per_troop = base_train_time[level]
                 total_base_time_sec += base_time_per_troop * number
 
+            elif st.session_state.action == "upgrade":
+                start = params["start_level"]
+                end = params["end_level"]
+                number = params["number"]
+
+                for lvl in range(start + 1, end + 1):
+                    row_now = troop_df[troop_df["Level"] == lvl]
+                    row_prev = troop_df[troop_df["Level"] == lvl - 1]
+
+                    if row_now.empty or row_prev.empty:
+                        st.error(f"Level data missing for level {lvl} or {lvl-1} in {troop}")
+                        continue
+
+                    row_now = row_now.iloc[0]
+                    row_prev = row_prev.iloc[0]
+
+                    meat_cost = parse_int(row_now["Meat"]) - parse_int(row_prev["Meat"])
+                    wood_cost = parse_int(row_now["Wood"]) - parse_int(row_prev["Wood"])
+                    coal_cost = parse_int(row_now["Coal"]) - parse_int(row_prev["Coal"])
+                    iron_cost = parse_int(row_now["Iron"]) - parse_int(row_prev["Iron"])
+                    time_cost = base_train_time[lvl] - base_train_time[lvl - 1]
+
+                    total_resources["Meat"] += meat_cost * number
+                    total_resources["Wood"] += wood_cost * number
+                    total_resources["Coal"] += coal_cost * number
+                    total_resources["Iron"] += iron_cost * number
+                    total_base_time_sec += time_cost * number
 
         # Calculate reduced training time
         reduction_factor = 1 / (1 + training_speed / 100)
         total_reduced_time_sec = total_base_time_sec * reduction_factor
 
-        # Convert seconds to H:M:S format
+        # Format time
         def format_time(seconds):
             hours = int(seconds // 3600)
             minutes = int((seconds % 3600) // 60)
@@ -215,6 +246,7 @@ if st.button("Calculate"):
         st.subheader("Training Time")
         st.markdown(f"**Total Base Training Time:** {format_time(total_base_time_sec)}")
         st.markdown(f"**Reduced Training Time:** {format_time(total_reduced_time_sec)}")
+
 
 
 
