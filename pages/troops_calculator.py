@@ -24,15 +24,19 @@ with col2:
     if st.button("Upgrade Troops"):
         st.session_state.action = "upgrade"
 
-# Show inputs if any action was selected
 # Show inputs in two columns
 if st.session_state.action in ["train", "upgrade"]:
     st.subheader(f"{st.session_state.action.capitalize()} Parameters")
 
-    param_col1, param_col2 = st.columns(2)
-
     with param_col1:
-        training_speed = st.slider("Training Speed", min_value=1, max_value=100, value=50)
-
+        training_speed_input = st.text_input("Training Speed", value="10")
     with param_col2:
-        training_capacity = st.number_input("Training Capacity", min_value=1, value=10)
+        training_capacity_input = st.text_input("Training Capacity", value="100")
+
+    # Validate inputs
+    try:
+        training_speed = int(training_speed_input)
+        training_capacity = int(training_capacity_input)
+        st.success(f"Speed: {training_speed}, Capacity: {training_capacity}")
+    except ValueError:
+        st.error("Please enter valid integers for both speed and capacity.")
