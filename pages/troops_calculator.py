@@ -97,13 +97,6 @@ for troop in troops:
         
         troop_params[troop] = {"level": level, "number": number}
 
-# Now you have a dictionary `troop_params` with selected troops and their inputs
-if troop_params:
-    st.write("Troop parameters:")
-    st.json(troop_params)
-else:
-    st.info("Select at least one troop to specify parameters.")
-
 # Load CSVs into a dict keyed by troop name (lowercase)
 troop_data = {}
 for troop in ["infantry", "lancer", "marksman"]:
