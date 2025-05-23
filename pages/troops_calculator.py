@@ -25,7 +25,14 @@ with col2:
         st.session_state.action = "upgrade"
 
 # Show inputs if any action was selected
+# Show inputs in two columns
 if st.session_state.action in ["train", "upgrade"]:
     st.subheader(f"{st.session_state.action.capitalize()} Parameters")
-    training_speed = st.slider("Training Speed", min_value=1, max_value=100, value=50)
-    training_capacity = st.number_input("Training Capacity", min_value=1, value=10)
+
+    param_col1, param_col2 = st.columns(2)
+
+    with param_col1:
+        training_speed = st.slider("Training Speed", min_value=1, max_value=100, value=50)
+
+    with param_col2:
+        training_capacity = st.number_input("Training Capacity", min_value=1, value=10)
