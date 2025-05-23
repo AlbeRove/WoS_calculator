@@ -37,6 +37,9 @@ if st.session_state.action in ["train", "upgrade"]:
     try:
         training_speed = float(training_speed_input)
         training_capacity = int(training_capacity_input)
-        st.success(f"Speed: {training_speed} \nCapacity: {training_capacity}")
+        st.success(f"""
+        Speed: {training_speed}  
+        Capacity: {training_capacity}
+        """)
     except ValueError:
         st.error("Please enter valid values for both speed and capacity.")
