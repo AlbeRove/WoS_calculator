@@ -117,58 +117,44 @@ for troop in ["infantry", "lancer", "marksman"]:
     else:
         st.warning(f"File {file_path} not found!")
 
-import pandas as pd
-
-# Assuming troop_params dict exists and troop_data dict is loaded
-
 if st.button("Calculate Total Resources"):
     if not troop_params:
         st.warning("Select at least one troop and specify parameters.")
     else:
-        # Initialize total resource counters
-        total_resources = {
-            "Meat": 0,
-            "Wood": 0,
-            "Coal": 0,
-            "Iron": 0
-        }
+        total_resources = {"Meat": 0, "Wood": 0, "Coal": 0, "Iron": 0}
+        troop_key_map = {"Infantry": "infantry", "Lancers": "lancer", "Marksmen": "marksman"}
 
-        # Map your troop names to filenames / keys in troop_data (make lowercase)
-        troop_key_map = {
-            "Infantry": "infantry",
-            "Lancers": "lancer",
-            "Marksmen": "marksman"
-        }
-
-        # Calculate total resources
         for troop, params in troop_params.items():
             troop_df = troop_data[troop_key_map[troop]]
             level = params["level"]
             number = params["number"]
 
-            # Get the row for the selected troop level (assuming 'Troop Tier' column)
-            row = troop_df[troop_df["Troop Tier"] == level]
+            # Select row by Level column
+            row = troop_df[troop_df["Level"] == level]
             if row.empty:
                 st.error(f"Level {level} data not found for {troop}")
                 continue
+            row = row.iloc[0]
 
-            # Extract resource costs for the troop level
-            meat_cost = int(row["Meat"].values[0])
-            wood_cost = int(row["Wood"].values[0])
-            coal_cost = int(row["Coal"].values[0])
-            iron_cost = int(row["Iron"].values[0])
+            # Parse resource costs (handle commas)
+            def parse_int(x):
+                if isinstance(x, str):
+                    return int(x.replace(",", ""))
+                return int(x)
 
-            # Multiply by number of troops and add to total
+            meat_cost = parse_int(row["Meat"])
+            wood_cost = parse_int(row["Wood"])
+            coal_cost = parse_int(row["Coal"])
+            iron_cost = parse_int(row["Iron"])
+
             total_resources["Meat"] += meat_cost * number
             total_resources["Wood"] += wood_cost * number
             total_resources["Coal"] += coal_cost * number
             total_resources["Iron"] += iron_cost * number
 
-        # Display the total resource costs
+        # Display total costs
         st.subheader("Total Resource Cost")
-        total_df = pd.DataFrame(
-            total_resources.items(), columns=["Resource", "Total Amount"]
-        )
+        total_df = pd.DataFrame(total_resources.items(), columns=["Resource", "Total Amount"])
         st.table(total_df)
 
 
