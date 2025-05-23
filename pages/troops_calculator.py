@@ -40,7 +40,7 @@ if st.session_state.action in ["train", "upgrade"]:
         training_capacity = int(training_capacity_input)
         if capacity_bonus: 
             training_capacity = training_capacity * 3 
-        else: continue
+        
         st.success(f"""
         Speed: {training_speed}  
         Capacity: {training_capacity}
