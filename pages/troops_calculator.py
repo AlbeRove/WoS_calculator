@@ -19,6 +19,19 @@ def format_seconds(seconds: float) -> str:
     else:
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
+base_train_time ={1:   12, 
+                  2:   17,
+                  3:   24,
+                  4:   32,
+                  5:   44,
+                  6:   60,
+                  7:   83,
+                  8:  113,
+                  9:  131,
+                  10: 152,
+                  11: 180}
+
+
 # --- First define what to do: train or upgrade ---
 # Create two columns for buttons
 col1, col2 = st.columns(2)
@@ -117,11 +130,12 @@ for troop in ["infantry", "lancer", "marksman"]:
     else:
         st.warning(f"File {file_path} not found!")
 
-if st.button("Calculate Total Resources"):
+if st.button("Calculate"):
     if not troop_params:
         st.warning("Select at least one troop and specify parameters.")
     else:
         total_resources = {"Meat": 0, "Wood": 0, "Coal": 0, "Iron": 0}
+        total_base_time_sec = 0  # Total base training time in seconds
         troop_key_map = {"Infantry": "infantry", "Lancers": "lancer", "Marksmen": "marksman"}
 
         for troop, params in troop_params.items():
@@ -129,14 +143,14 @@ if st.button("Calculate Total Resources"):
             level = params["level"]
             number = params["number"]
 
-            # Select row by Level column
+            # Get the troop row for the selected level
             row = troop_df[troop_df["Level"] == level]
             if row.empty:
-                st.error(f"Level {level} data not found for {troop}")
+                st.error(f"Level {level} not found for {troop}")
                 continue
             row = row.iloc[0]
 
-            # Parse resource costs (handle commas)
+            # Convert resource costs to integers (handling commas)
             def parse_int(x):
                 if isinstance(x, str):
                     return int(x.replace(",", ""))
@@ -152,9 +166,30 @@ if st.button("Calculate Total Resources"):
             total_resources["Coal"] += coal_cost * number
             total_resources["Iron"] += iron_cost * number
 
-        # Display total costs
+            # Base training time per troop (in seconds)
+            base_time_per_troop = base_train_time[level]
+            total_base_time_sec += base_time_per_troop * number
+
+        # Calculate reduced training time
+        reduction_factor = 1 / (1 + training_speed / 100)
+        total_reduced_time_sec = total_base_time_sec * reduction_factor
+
+        # Convert seconds to H:M:S format
+        def format_time(seconds):
+            hours = int(seconds // 3600)
+            minutes = int((seconds % 3600) // 60)
+            secs = int(seconds % 60)
+            return f"{hours}h {minutes}m {secs}s"
+
+        # Display resource totals
         st.subheader("Total Resource Cost")
         total_df = pd.DataFrame(total_resources.items(), columns=["Resource", "Total Amount"])
         st.table(total_df)
+
+        # Display training times
+        st.subheader("Training Time")
+        st.markdown(f"**Total Base Training Time:** {format_time(total_base_time_sec)}")
+        st.markdown(f"**Reduced Training Time:** {format_time(total_reduced_time_sec)}")
+
 
 
