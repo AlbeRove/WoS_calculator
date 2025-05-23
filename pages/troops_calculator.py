@@ -28,15 +28,15 @@ with col2:
 if st.session_state.action in ["train", "upgrade"]:
     st.subheader(f"{st.session_state.action.capitalize()} Parameters")
 
+    param_col1, param_col2 = st.columns(2)
     with param_col1:
         training_speed_input = st.text_input("Training Speed", value="10")
     with param_col2:
         training_capacity_input = st.text_input("Training Capacity", value="100")
-
     # Validate inputs
     try:
-        training_speed = int(training_speed_input)
+        training_speed = float(training_speed_input)
         training_capacity = int(training_capacity_input)
         st.success(f"Speed: {training_speed}, Capacity: {training_capacity}")
     except ValueError:
-        st.error("Please enter valid integers for both speed and capacity.")
+        st.error("Please enter valid values for both speed and capacity.")
