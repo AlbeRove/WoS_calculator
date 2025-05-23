@@ -106,20 +106,39 @@ troop_params = {}
 for troop in troops:
     if st.session_state.get(f"toggle_{troop}", False):
         st.subheader(f"{troops[troop]} {troop} Parameters")
-        
-        # Create two columns for neat layout
-        col_level, col_number = st.columns(2)
-        
-        with col_level:
-            level = st.selectbox(
-                f"{troop} Level", options=list(range(1, 12)), key=f"{troop}_level"
-            )
-        with col_number:
+
+        col1, col2, col3 = st.columns(3)
+        if st.session_state.action == "train":
+            with col1:
+                level = st.selectbox(
+                    f"{troop} Level", options=list(range(1, 12)), key=f"{troop}_level"
+                )
+        elif st.session_state.action == "upgrade":
+            with col1:
+                start_level = st.selectbox(
+                    f"{troop} Start Level", options=list(range(1, 11)), key=f"{troop}_start"
+                )
+            with col2:
+                end_level = st.selectbox(
+                    f"{troop} End Level", options=list(range(2, 12)), key=f"{troop}_end"
+                )
+
+        with col3:
             number = st.number_input(
                 f"Number of {troop}", min_value=0, step=1, key=f"{troop}_number"
             )
-        
-        troop_params[troop] = {"level": level, "number": number}
+
+        if st.session_state.action == "train":
+            troop_params[troop] = {"level": level, "number": number}
+        elif st.session_state.action == "upgrade":
+            if start_level >= end_level:
+                st.warning(f"End level must be greater than start level for {troop}")
+            else:
+                troop_params[troop] = {
+                    "start_level": start_level,
+                    "end_level": end_level,
+                    "number": number
+                }
 
 # Load CSVs into a dict keyed by troop name (lowercase)
 troop_data = {}
@@ -140,35 +159,41 @@ if st.button("Calculate"):
 
         for troop, params in troop_params.items():
             troop_df = troop_data[troop_key_map[troop]]
-            level = params["level"]
+
+            if st.session_state.action == "train":
+                levels = [params["level"]]
+            else:
+                levels = list(range(params["start_level"] + 1, params["end_level"] + 1))
+
             number = params["number"]
 
-            # Get the troop row for the selected level
-            row = troop_df[troop_df["Level"] == level]
-            if row.empty:
-                st.error(f"Level {level} not found for {troop}")
-                continue
-            row = row.iloc[0]
+            for level in levels:
+                row = troop_df[troop_df["Level"] == level]
+                if row.empty:
+                    st.error(f"Level {level} not found for {troop}")
+                    continue
+                row = row.iloc[0]
 
-            # Convert resource costs to integers (handling commas)
-            def parse_int(x):
-                if isinstance(x, str):
-                    return int(x.replace(",", ""))
-                return int(x)
+                # Convert resource costs to integers (handling commas)
+                def parse_int(x):
+                    if isinstance(x, str):
+                        return int(x.replace(",", ""))
+                    return int(x)
 
-            meat_cost = parse_int(row["Meat"])
-            wood_cost = parse_int(row["Wood"])
-            coal_cost = parse_int(row["Coal"])
-            iron_cost = parse_int(row["Iron"])
+                meat_cost = parse_int(row["Meat"])
+                wood_cost = parse_int(row["Wood"])
+                coal_cost = parse_int(row["Coal"])
+                iron_cost = parse_int(row["Iron"])
 
-            total_resources["Meat"] += meat_cost * number
-            total_resources["Wood"] += wood_cost * number
-            total_resources["Coal"] += coal_cost * number
-            total_resources["Iron"] += iron_cost * number
+                total_resources["Meat"] += meat_cost * number
+                total_resources["Wood"] += wood_cost * number
+                total_resources["Coal"] += coal_cost * number
+                total_resources["Iron"] += iron_cost * number
 
-            # Base training time per troop (in seconds)
-            base_time_per_troop = base_train_time[level]
-            total_base_time_sec += base_time_per_troop * number
+                # Base training time per troop (in seconds)
+                base_time_per_troop = base_train_time[level]
+                total_base_time_sec += base_time_per_troop * number
+
 
         # Calculate reduced training time
         reduction_factor = 1 / (1 + training_speed / 100)
