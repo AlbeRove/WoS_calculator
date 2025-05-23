@@ -100,7 +100,7 @@ for troop in troops:
 # Load CSVs into a dict keyed by troop name (lowercase)
 troop_data = {}
 for troop in ["infantry", "lancer", "marksman"]:
-    file_path = os.path.join(data_path, f"data/{troop}.csv")
+    file_path = os.path.join(data_path, f"{troop}.csv")
     if os.path.exists(file_path):
         troop_data[troop] = pd.read_csv(file_path)
     else:
