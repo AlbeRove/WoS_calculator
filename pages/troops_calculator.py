@@ -41,10 +41,7 @@ if st.session_state.action in ["train", "upgrade"]:
         if capacity_bonus: 
             training_capacity = training_capacity * 3 
         
-        st.success(f"""
-        Speed: {training_speed}  
-        Capacity: {training_capacity}
-        """)
+        st.success(f"""Success""")
     except ValueError:
         st.error("Please enter valid values for both speed and capacity.")
 
@@ -78,4 +75,41 @@ if selected_troops:
     st.success("Selected troops to train: " + ", ".join(selected_troops))
 else:
     st.info("No troop type selected.")
+
+# For each selected troop, show level and number input fields
+troop_params = {}
+
+for troop in troops:
+    if st.session_state.get(f"toggle_{troop}", False):
+        st.subheader(f"{troops[troop]} {troop} Parameters")
+        
+        # Create two columns for neat layout
+        col_level, col_number = st.columns(2)
+        
+        with col_level:
+            level = st.selectbox(
+                f"{troop} Level", options=list(range(1, 12)), key=f"{troop}_level"
+            )
+        with col_number:
+            number = st.number_input(
+                f"Number of {troop}", min_value=0, step=1, key=f"{troop}_number"
+            )
+        
+        troop_params[troop] = {"level": level, "number": number}
+
+# Now you have a dictionary `troop_params` with selected troops and their inputs
+if troop_params:
+    st.write("Troop parameters:")
+    st.json(troop_params)
+else:
+    st.info("Select at least one troop to specify parameters.")
+
+# Load CSVs into a dict keyed by troop name (lowercase)
+troop_data = {}
+for troop in ["infantry", "lancer", "marksman"]:
+    file_path = os.path.join(data_path, f"data/{troop}.csv")
+    if os.path.exists(file_path):
+        troop_data[troop] = pd.read_csv(file_path)
+    else:
+        st.warning(f"File {file_path} not found!")
 
