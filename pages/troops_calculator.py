@@ -43,3 +43,35 @@ if st.session_state.action in ["train", "upgrade"]:
         """)
     except ValueError:
         st.error("Please enter valid values for both speed and capacity.")
+
+st.title("Select Troops")
+
+# Troop types and icons
+troops = {
+    "Infantry": "🛡️",
+    "Lancers": "🗡️",
+    "Marksmen": "🏹"
+}
+
+# Initialize toggle states
+for troop in troops:
+    if f"toggle_{troop}" not in st.session_state:
+        st.session_state[f"toggle_{troop}"] = False
+
+# Display toggles in 3 columns
+cols = st.columns(3)
+for i, (troop, icon) in enumerate(troops.items()):
+    with cols[i % 3]:
+        st.session_state[f"toggle_{troop}"] = st.toggle(
+            f"{icon} {troop}", value=st.session_state[f"toggle_{troop}"]
+        )
+
+# Get selected troops
+selected_troops = [troop for troop in troops if st.session_state[f"toggle_{troop}"]]
+
+# Show result
+if selected_troops:
+    st.success("Selected troops to train: " + ", ".join(selected_troops))
+else:
+    st.info("No troop type selected.")
+
