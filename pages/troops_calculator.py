@@ -64,8 +64,7 @@ if st.session_state.action in ["train", "upgrade"]:
         training_capacity = int(training_capacity_input)
         if capacity_bonus: 
             training_capacity = training_capacity * 3 
-        
-        st.success(f"""Success""")
+
     except ValueError:
         st.error("Please enter valid values for both speed and capacity.")
 
@@ -87,25 +86,17 @@ for troop in troops:
 cols = st.columns(3)
 for i, (troop, icon) in enumerate(troops.items()):
     with cols[i % 3]:
-        st.session_state[f"toggle_{troop}"] = st.toggle(
-            f"{icon} {troop}", value=st.session_state[f"toggle_{troop}"]
-        )
+        st.session_state[f"toggle_{troop}"] = st.toggle(f"{icon} {troop}")
 
 # Get selected troops
 selected_troops = [troop for troop in troops if st.session_state[f"toggle_{troop}"]]
-
-# Show result
-if selected_troops:
-    st.success("Selected troops to train: " + ", ".join(selected_troops))
-else:
-    st.info("No troop type selected.")
 
 # For each selected troop, show level and number input fields
 troop_params = {}
 
 for troop in troops:
     if st.session_state.get(f"toggle_{troop}", False):
-        st.subheader(f"{troops[troop]} {troop} Parameters")
+        st.subheader(f"{troops[troop]} {troop}")
 
         col1, col2, col3 = st.columns(3)
         mode = st.session_state.action  # "train" or "upgrade"
