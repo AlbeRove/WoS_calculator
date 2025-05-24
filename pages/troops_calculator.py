@@ -163,16 +163,6 @@ if st.button("Calculate"):
 
         for troop, params in troop_params.items():
             troop_df = troop_data[troop_key_map[troop]]
-if st.button("Calculate"):
-    if not troop_params:
-        st.warning("Select at least one troop and specify parameters.")
-    else:
-        total_resources = {"Meat": 0, "Wood": 0, "Coal": 0, "Iron": 0}
-        total_base_time_sec = 0  # Total base training time in seconds
-        troop_key_map = {"Infantry": "infantry", "Lancers": "lancer", "Marksmen": "marksman"}
-
-        for troop, params in troop_params.items():
-            troop_df = troop_data[troop_key_map[troop]]
 
             def parse_int(x):
                 if isinstance(x, str):
