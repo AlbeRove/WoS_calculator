@@ -31,7 +31,7 @@ for name, filename in BUILDINGS.items():
             selected_buildings[name] = (filename, start_level, end_level)
 
 # Calculate button
-if st.button("🧮 Calculate Total Fire Crystals"):
+if st.button("Calculate"):
     total_crystals = 0
     details = []
     for name, (filename, start, end) in selected_buildings.items():
@@ -47,7 +47,7 @@ if st.button("🧮 Calculate Total Fire Crystals"):
         except Exception as e:
             st.error(f"Error loading {name} data: {e}")
 
-    st.subheader("📊 Fire Crystal Summary")
+    st.subheader("Fire Crystal Summary")
     st.write("\n".join(details))
     st.success(f"**Total Fire Crystals Required: {int(total_crystals)}**")
 
