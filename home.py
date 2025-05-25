@@ -29,6 +29,27 @@ with col2:
     st.page_link("pages/hoc.py", label="📅 Hall of Chief [Coming soon...]")
 
 
+st.markdown(
+    """
+    <div style="text-align: center; margin-top: 2em;">
+        <a href="https://en.tipeee.com/woscalculatorapp" target="_blank">
+            <button style="
+                background-color:#ff5e57;
+                color:white;
+                border:none;
+                padding:0.75em 1.5em;
+                border-radius:0.5em;
+                font-size:1em;
+                cursor:pointer;">
+                ❤️ Support the App on Tipeee
+            </button>
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
 st.markdown("---")
 st.caption("Made with ❤️ using Streamlit")
 
