@@ -63,3 +63,6 @@ if st.button("Calculate"):
     st.write("\n".join(details))
     st.success(f"**Total Fire Crystals Required: {int(total_crystals)}**")
 
+# Place this wherever you want the button to appear
+if st.button("🏠 Back to Homepage"):
+    st.switch_page("home.py")  # Replace with the actual filename of your homepage script
