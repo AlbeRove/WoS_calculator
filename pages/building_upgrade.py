@@ -223,3 +223,6 @@ if st.button("Calculate Upgrades Cost"):
     # Show in the order: meat, wood, coal, iron, fire crystals, time
     st.table(result_df.set_index("Resource"))
 
+
+if st.button("🏠 Back to Homepage"):
+    st.switch_page("home.py")  # Replace with the actual filename of your homepage script
