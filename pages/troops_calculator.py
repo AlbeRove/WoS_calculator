@@ -233,5 +233,8 @@ if st.button("Calculate"):
         st.markdown(f"**Reduced Training Time:** {format_time(total_reduced_time_sec)}")
 
 
+if st.button("🏠 Back to Homepage"):
+    st.switch_page("home.py")  # Replace with the actual filename of your homepage script
+
 
 
