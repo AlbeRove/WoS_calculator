@@ -18,11 +18,13 @@ col1, col2 = st.columns(2)
 with col1:
     st.page_link("pages/building_upgrade.py", label="Building Upgrade Calculator", icon="📈")
     st.page_link("pages/fire_crystals_requirements.py", label="🔥 Fire Crystal Cost")
-    st.page_link("pages/hero_gear.py", label="🔥 Hero Gear [Coming soon...]")
+    st.page_link("pages/hero_gear.py", label="🔵 Hero Gear [Coming soon...]")
 
 with col2:
     st.page_link("pages/troops_calculator.py", label="Troops Training & Upgrade Calculator", icon="🪖")
     st.page_link("pages/building_upgrade.py", label="Coming soon...")
+    st.page_link("pages/chief_gear.py", label="🔵 Chief Gear [Coming soon...]")
+
 
 st.markdown("---")
 st.caption("Made with ❤️ using Streamlit")
