@@ -5,7 +5,7 @@ import os
 st.title("🔥 Fire Crystal Calculator")
 st.markdown("""Calculate how many Fire Crystals are needed to upgrade selected buildings.
 
-Every 5 levels = 1 FC level (Furnace level 35 = FC1)
+Every 5 levels = 1 FC level (For example: Furnace level 35 = FC1)
 """)
 
 # Mapping of building names to their CSV filenames
