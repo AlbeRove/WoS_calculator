@@ -31,23 +31,25 @@ for name, filename in BUILDINGS.items():
             selected_buildings[name] = (filename, start_level, end_level)
 
 # Calculate button
-if st.button("Calculate"):
-    total_crystals = 0
-    details = []
-    for name, (filename, start, end) in selected_buildings.items():
-        if start >= end:
-            st.warning(f"{name}: Start level must be less than target level.")
-            continue
-        try:
-            df = pd.read_csv(f"data/{filename}")
-            df = df[(df['level'] > start) & (df['level'] <= end)]
-            cost = df['firecrystals'].sum()
-            total_crystals += cost
-            details.append(f"🔹 {name}: {int(cost)} Fire Crystals")
-        except Exception as e:
-            st.error(f"Error loading {name} data: {e}")
-
-    st.subheader("Fire Crystal Summary")
-    st.write("\n".join(details))
-    st.success(f"**Total Fire Crystals Required: {int(total_crystals)}**")
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("Calculate"):
+        total_crystals = 0
+        details = []
+        for name, (filename, start, end) in selected_buildings.items():
+            if start >= end:
+                st.warning(f"{name}: Start level must be less than target level.")
+                continue
+            try:
+                df = pd.read_csv(f"data/{filename}")
+                df = df[(df['level'] > start) & (df['level'] <= end)]
+                cost = df['firecrystals'].sum()
+                total_crystals += cost
+                details.append(f"🔹 {name}: {int(cost)} Fire Crystals")
+            except Exception as e:
+                st.error(f"Error loading {name} data: {e}")
+    
+        st.subheader("Fire Crystal Summary")
+        st.write("\n".join(details))
+        st.success(f"**Total Fire Crystals Required: {int(total_crystals)}**")
 
