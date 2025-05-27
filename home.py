@@ -3,7 +3,7 @@ import streamlit as st
 # Page config (title and icon)
 st.set_page_config(
     page_title="WoS Upgrade and Troops Calculator",
-    page_icon="🎮",
+    page_icon="❄️",
     layout="centered"
 )
 
