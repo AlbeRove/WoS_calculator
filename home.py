@@ -9,7 +9,10 @@ st.set_page_config(
 
 # Header
 st.title("WoS Upgrade and Troops Calculator")
-st.subheader("Powered by [ARW]RealPookiePollo🐥 State #2543")
+st.markdown("---")
+st.caption("Made with 🩷 by [ARW]RealPookiePollo🐥 State #2543")
+st.markdown("---")
+
 st.write("Choose a calculator below 😀")
 
 # Navigation buttons using page links (Streamlit will auto-detect .py files in the /pages folder)
@@ -51,5 +54,3 @@ st.markdown(
 
 
 st.markdown("---")
-st.caption("Made with ❤️ using Streamlit")
-
